@@ -1,26 +1,26 @@
 /* eslint-disable no-console */
 
-const dotenv = require('dotenv');
+// eslint-disable-next-line no-unused-vars
+const dotenv = require('dotenv').config();
 const mongoose = require('mongoose');
-
-dotenv.config({ path: './config.env' });
+// eslint-disable-next-line no-unused-vars
+const colors = require('colors');
+const app = require('./app');
 
 process.on('uncaughtException', (err) => {
   console.log('uncaught exception shutting down');
   console.log(err.name, err.message);
   process.exit(1);
 });
-
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
   process.env.DATABASE_PASSWORD
 );
-mongoose.connect(DB).then(() => console.log('DB success'));
-const app = require('./app');
+mongoose.connect(DB).then(() => console.log(`DB success`.cyan.underline));
 
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
-  console.log(`app running on port ${port}`);
+  console.log(`app running on port ${port}`.cyan.underline);
 });
 
 process.on('unhandledRejection', (err) => {
