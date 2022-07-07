@@ -25,6 +25,51 @@ export const signup = createAsyncThunk(
     }
   }
 );
+export const login = createAsyncThunk(
+  'auth/login',
+  async function (user, thunkAPI) {
+    try {
+      console.log('hello');
+      return await authService.login(user);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const logout = createAsyncThunk(
+  'auth/logout',
+  async function (_, thunkAPI) {
+    try {
+      return await authService.logout();
+    } catch (error) {
+      const message = 'Something went wrong with logging out';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const checkUser = createAsyncThunk(
+  'auth/chekUser',
+  async function (_, thunkAPI) {
+    try {
+      console.log('checking...');
+      return await authService.checkUser();
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -51,10 +96,52 @@ export const authSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
         state.user = null;
+      })
+      .addCase(login.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user = action.payload;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        state.user = null;
+      })
+      .addCase(logout.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(logout.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user = null;
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(checkUser.pending, (state, action) => {
+        state.isLoading = true;
+      })
+      .addCase(checkUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user = action.payload;
+      })
+      .addCase(checkUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        state.user = null;
       });
   },
 });
 export default authSlice.reducer;
+export const { reset } = authSlice.actions;
 /**import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "./authService";
 

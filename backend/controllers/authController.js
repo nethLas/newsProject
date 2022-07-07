@@ -1,6 +1,6 @@
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
+// const crypto = require('crypto');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -86,3 +86,40 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'success' });
+};
+
+//helper for checkuser
+const sendUser = (req, res, user) => {
+  res.status(200).json({ status: 'success', data: { user } });
+};
+
+exports.checkUser = async (req, res, next) => {
+  if (!req.cookies.jwt) return sendUser(req, res, null);
+  try {
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    );
+
+    // 2) Check if user still exists
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      return sendUser(req, res, null);
+    }
+
+    // 3) Check if user changed password after the token was issued
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return sendUser(req, res, null);
+    }
+    //there is a user
+    return sendUser(req, res, currentUser);
+  } catch (error) {
+    return sendUser(req, res, null);
+  }
+};

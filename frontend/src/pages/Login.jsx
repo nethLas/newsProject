@@ -1,49 +1,51 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { signup } from '../features/auth/authSlice';
+import { useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { login, reset } from '../features/auth/authSlice';
 
-function Signup() {
+function Login() {
   const [formData, setFormData] = useState({
     email: '',
-    name: '',
     password: '',
-    passwordConfirm: '',
   });
-  const { name, email, password, passwordConfirm } = formData;
+  const { email, password } = formData;
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { user, isLoading, isSuccess, isError, message } = useSelector(
+    (state) => state.auth
+  );
+  //useEffects
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+    //redirect when logged in
+    if (isSuccess && user) {
+      navigate('/');
+    }
+    dispatch(reset());
+  }, [isError, isSuccess, user, message, navigate, dispatch]);
+
   const onChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
   const handleSubmit = (e) => {
     e.preventDefault();
     const userData = {
-      name,
       email,
       password,
-      passwordConfirm,
     };
-    dispatch(signup(userData));
+    dispatch(login(userData));
   };
 
   return (
     <>
       <form onSubmit={handleSubmit}>
         <h3>Register</h3>
-
-        <div className="form-group">
-          <label>User Name</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="username"
-            name="name"
-            value={name}
-            onChange={onChange}
-            required
-          />
-        </div>
         <div className="form-group">
           <label>Email</label>
           <input
@@ -56,7 +58,7 @@ function Signup() {
             required
           />
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ marginBottom: '12px' }}>
           <label>Password</label>
           <input
             type="password"
@@ -68,27 +70,15 @@ function Signup() {
             required
           />
         </div>
-        <div className="form-group" style={{ marginBottom: '12px' }}>
-          <label>Password Confirmation</label>
-          <input
-            type="password"
-            className="form-control"
-            placeholder="Confirm password"
-            name="passwordConfirm"
-            value={passwordConfirm}
-            onChange={onChange}
-            required
-          />
-        </div>
         <button type="submit" className="btn btn-dark btn-lg btn-block ">
-          Register
+          Login
         </button>
         <p className="forgot-password text-right">
-          Already registered? <Link to={'/login'}>Login here</Link>
+          Dont have an account <Link to={'/signup'}>sign up here</Link>
         </p>
       </form>
     </>
   );
 }
 
-export default Signup;
+export default Login;
