@@ -18,11 +18,14 @@ const upload = multer({
     // metadata: function (req, file, cb) {
     //   cb(null, { fieldName: file.fieldname });
     // },
+    resizeTo: (125, 125),
     key: function (req, file, cb) {
-      cb(null, ` ${Date.now().toString()}.jpeg`);
+      cb(null, `${file.originalname}-${Date.now().toString()}.jpeg`);
     },
   }),
 });
+// const getPhotoStorage = function (filename) {};
+
 // AWS.config.update({ credentials: credentials, region });
 // const s3obj = new AWS.S3();
 // const file = ' 1657036939444.jpeg';
@@ -32,7 +35,6 @@ const upload = multer({
 //   Expires: 10000, //time to expire in seconds
 // });
 // console.log(presignedGETURL);
-getFile(' 1657036939444.jpeg');
 module.exports = upload;
 // app.post('/upload', upload.array('photos', 3), (req, res, next) => {
 //   res.send(`Successfully uploaded ${req.files.length} files!`);

@@ -15,12 +15,7 @@ export const signup = createAsyncThunk(
       console.log('hello');
       return await authService.signup(user);
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString();
+      const message = 'Could not sign up please try again';
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -49,6 +44,23 @@ export const logout = createAsyncThunk(
       return await authService.logout();
     } catch (error) {
       const message = 'Something went wrong with logging out';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const updateUser = createAsyncThunk(
+  'auth/updateUser',
+  async function (userData, thunkAPI) {
+    try {
+      return await authService.updateUser(userData);
+    } catch (error) {
+      // const message = 'Something went wrong with updating your details';
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -137,6 +149,19 @@ export const authSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
         state.user = null;
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user = action.payload;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
       });
   },
 });

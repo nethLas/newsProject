@@ -14,5 +14,15 @@ router.get(
   userController.getMe,
   userController.getUser
 );
-
+router.patch(
+  '/updateMe',
+  authController.protect,
+  userController.uploadUserPhoto,
+  userController.upadteMe
+);
+router.patch(
+  '/updateMyPassword',
+  authController.protect,
+  authController.updatePassword
+);
 module.exports = router;

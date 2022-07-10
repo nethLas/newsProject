@@ -1,10 +1,14 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { signup } from '../features/auth/authSlice';
+import { Link, useNavigate } from 'react-router-dom';
+import { signup, reset } from '../features/auth/authSlice';
+import { toast } from 'react-toastify';
 
 function Signup() {
+  const { isError, isSuccess, user, message } = useSelector(
+    (state) => state.auth
+  );
   const [formData, setFormData] = useState({
     email: '',
     name: '',
@@ -13,9 +17,21 @@ function Signup() {
   });
   const { name, email, password, passwordConfirm } = formData;
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const onChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+    //redirect when logged in
+    if (isSuccess && user) {
+      navigate('/');
+    }
+    dispatch(reset());
+  }, [isError, isSuccess, user, message, navigate, dispatch]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const userData = {

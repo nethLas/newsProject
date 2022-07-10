@@ -34,9 +34,14 @@ function Navbar() {
           </Nav.Link>
         </Nav>
         {user ? (
-          <Button variant="dark" onClick={handleLogout}>
-            Logout
-          </Button>
+          <>
+            <Button variant="dark" onClick={handleLogout}>
+              Logout
+            </Button>
+            <Link to="/profile" style={{ marginLeft: '0.5rem' }}>
+              <Button variant="primary">View Profile</Button>
+            </Link>
+          </>
         ) : (
           <>
             <Link to="/signup">

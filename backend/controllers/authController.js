@@ -123,3 +123,17 @@ exports.checkUser = async (req, res, next) => {
     return sendUser(req, res, null);
   }
 };
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  //1)get user from collection
+  const user = await User.findById(req.user.id).select('+password');
+
+  //2)check if password is correct
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password)))
+    return next(new AppError('NO', 401));
+  //3)if so , update password,
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+  //4)log user in with new password
+  createSendToken(user, 200, req, res);
+});

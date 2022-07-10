@@ -21,6 +21,7 @@ app.use(cookieParser());
 // });
 app.use('/api/v1/users', userRouter);
 app.all('*', (req, res, next) => {
+  console.log('not found');
   res.status(400).send(`can't find ${req.originalUrl}`);
 });
 app.use(globalErrorHandler);
