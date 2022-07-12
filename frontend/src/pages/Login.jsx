@@ -74,7 +74,11 @@ function Login() {
           Login
         </button>
         <p className="forgot-password text-right">
-          Dont have an account <Link to={'/signup'}>sign up here</Link>
+          Forgot your password?{' '}
+          <Link to={'/forgot-password'}>Reset it here</Link>
+        </p>
+        <p className="forgot-password text-right">
+          Dont have an account? <Link to={'/signup'}>sign up here</Link>
         </p>
       </form>
     </>

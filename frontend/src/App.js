@@ -11,6 +11,8 @@ import Home from './pages/Home';
 import Navbar from './components/Navbar';
 import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   const dispatch = useDispatch();
@@ -30,6 +32,8 @@ function App() {
             <Route path="/profile" element={<PrivateRoute />}>
               <Route path="/profile" element={<Profile />} />
             </Route>
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/" element={<Home />} />
           </Routes>
         </div>

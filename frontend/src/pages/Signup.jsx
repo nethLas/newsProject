@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signup, reset } from '../features/auth/authSlice';
 import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner';
 
 function Signup() {
-  const { isError, isSuccess, user, message } = useSelector(
+  const { isError, isSuccess, user, message, isLoading } = useSelector(
     (state) => state.auth
   );
   const [formData, setFormData] = useState({
@@ -42,7 +43,9 @@ function Signup() {
     };
     dispatch(signup(userData));
   };
-
+  if (isLoading) {
+    return <Spinner />;
+  }
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -57,6 +60,7 @@ function Signup() {
             name="name"
             value={name}
             onChange={onChange}
+            minLength={10}
             required
           />
         </div>

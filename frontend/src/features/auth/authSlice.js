@@ -65,6 +65,45 @@ export const updateUser = createAsyncThunk(
     }
   }
 );
+export const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async function (userData, thunkAPI) {
+    try {
+      return await authService.resetPassword(userData);
+    } catch (error) {
+      // const message = 'Something went wrong with updating your details';
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+export const forgotPassword = createAsyncThunk(
+  'auth/forgotPassword',
+  async function (userData, thunkAPI) {
+    try {
+      return await authService.forgotPassword(userData);
+    } catch (error) {
+      // const message = 'Something went wrong with updating your details';
+      let message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      //dont want to leak information
+      message =
+        message === 'There is no user with that email address.'
+          ? 'Something went wrong'
+          : message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 export const checkUser = createAsyncThunk(
   'auth/chekUser',
   async function (_, thunkAPI) {
@@ -141,13 +180,13 @@ export const authSlice = createSlice({
       })
       .addCase(checkUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isSuccess = true;
+        // state.isSuccess = true;
         state.user = action.payload;
       })
       .addCase(checkUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
+        // state.isError = true;
+        // state.message = action.payload;
         state.user = null;
       })
       .addCase(updateUser.pending, (state) => {
@@ -159,6 +198,32 @@ export const authSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(updateUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user = action.payload;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.message = action.payload;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;

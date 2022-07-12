@@ -24,6 +24,26 @@ const updateUser = async (userData) => {
   const response = await axios.patch(`${API_URL}${urlPath}`, userData);
   return response.data.data.user;
 };
-const authService = { signup, checkUser, login, logout, updateUser };
+const forgotPassword = async (userData) => {
+  const response = await axios.post(`${API_URL}forgotPassword`, userData);
+  return response.data.message;
+};
+const resetPassword = async (userData) => {
+  const { token, password, passwordConfirm } = userData;
+  const response = await axios.patch(`${API_URL}resetPassword/${token}`, {
+    password,
+    passwordConfirm,
+  });
+  return response.data.data.user;
+};
+const authService = {
+  signup,
+  checkUser,
+  login,
+  logout,
+  updateUser,
+  forgotPassword,
+  resetPassword,
+};
 
 export default authService;

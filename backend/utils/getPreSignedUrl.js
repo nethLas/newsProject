@@ -14,6 +14,6 @@ module.exports = (fileName) => {
     Key: fileName, //filename
     Expires: 10000, //time to expire in seconds
   });
-  console.log(presignedGETURL);
+  // console.log(presignedGETURL);
   return presignedGETURL;
 };

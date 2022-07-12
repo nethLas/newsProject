@@ -6,6 +6,7 @@ import { updateUser, reset } from '../features/auth/authSlice';
 import { toast } from 'react-toastify';
 import { useEffect, useRef } from 'react';
 import Spinner from '../components/Spinner';
+import { Link } from 'react-router-dom';
 
 function Profile() {
   //implement chnage name and change password add all stroeis cards and stuff with photo
@@ -32,7 +33,6 @@ function Profile() {
   const onChangeName = function (e) {
     e.preventDefault();
     try {
-      console.log(e);
       if (name.length < 10)
         return toast.error('name must be at least 10 characters');
       if (user.name !== name) {
@@ -205,6 +205,10 @@ function Profile() {
           </Col>
         </Form.Group>
         <Button type="submit">Save Password</Button>
+        <p className="forgot-password text-right">
+          Forgot your password?{' '}
+          <Link to={'/forgot-password'}>Reset it here</Link>
+        </p>
       </Form>
     </Stack>
   );
