@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Card, Form, Button } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Form, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { resetPassword, reset } from '../features/auth/authSlice';
 import { toast } from 'react-toastify';

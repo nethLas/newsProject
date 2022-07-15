@@ -56,7 +56,9 @@ const sendErrorForProd = (err, req, res) => {
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
-  if (process.env.NODE_ENV === 'development') {
+  //https://www.bennadel.com/blog/3275-you-can-continue-to-process-an-express-js-request-after-the-client-response-has-been-sent.htm
+  if (res.headersSent) console.log(err);
+  else if (process.env.NODE_ENV === 'development') {
     sendErrorForDev(err, req, res);
   } else if (process.env.NODE_ENV === 'production') {
     let error = Object.create(err);

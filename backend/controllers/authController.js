@@ -40,7 +40,12 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
   });
-  createSendToken(newUser, 201, req, res);
+  console.log('created user');
+  req.user = newUser;
+  //send activation email
+  // this.sendActivateToken();//FIX ME
+  // createSendToken(newUser, 201, req, res);
+  next();
 });
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
@@ -188,6 +193,54 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
   //3)Update changed passwordAt property for user
   //done in user model
+  //4)log the user in, send JWT
+  createSendToken(user, 200, req, res);
+});
+//activating user
+exports.sendActivateToken = catchAsync(async (req, res, next) => {
+  //1)get user based on POSTed email
+  const user = req.user || (await User.findOne({ email: req.body.email }));
+  if (!user)
+    return next(new AppError('There is no user with that email address.', 404));
+  if (user.verfied) return next(new AppError('User Already verified', 400));
+  //2)generate token
+  const activationToken = user.createActivationToken();
+  await user.save({ validateModifiedOnly: true });
+  //3)send it to users email
+  const activationUrl = `${req.protocol}://${req.get(
+    'host'
+  )}/activate-user/${activationToken}`;
+  try {
+    await new Email(user, activationUrl).sendUserActivation();
+    res
+      .status(200)
+      .json({ status: 'success', message: 'Token sent to email!' });
+  } catch (error) {
+    console.log(error);
+    user.verifyToken = undefined;
+    user.verifyTokenExpires = undefined;
+    await user.save({ validateModifiedOnly: true });
+    return next(new AppError('There was an error sending the email', 500));
+  }
+});
+exports.activateAccount = catchAsync(async (req, res, next) => {
+  //1)get user based on token
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+  console.log(hashedToken);
+  const user = await User.findOne({
+    verifyToken: hashedToken,
+    verifyTokenExpires: { $gt: Date.now() },
+  });
+  //2) If token has not expired and there is a user, activate the user
+  if (!user) return next(new AppError('Token is invalid or has expired', 400));
+  //2.1) if password is the same throw error
+  user.verfied = true;
+  user.verifyToken = undefined;
+  user.verifyTokenExpires = undefined;
+  await user.save({ validateModifiedOnly: true });
   //4)log the user in, send JWT
   createSendToken(user, 200, req, res);
 });

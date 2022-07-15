@@ -1,5 +1,15 @@
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const { htmlToText } = require('html-to-text');
 
+const tempVerify = fs.readFileSync(
+  `${__dirname}/templates/verify.html`,
+  'utf-8'
+);
+const tempReset = fs.readFileSync(
+  `${__dirname}/templates/resetPassword.html`,
+  'utf-8'
+);
 module.exports = class Email {
   constructor(user, url) {
     this.to = user.email;
@@ -31,19 +41,8 @@ module.exports = class Email {
   }
 
   async send(template, subject) {
-    //1 Render based on template
-    // const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
-    //   firstName: this.firstName,
-    //   url: this.url,
-    //   subject,
-    // });
-    const text =
-      template === 'passwordReset'
-        ? 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-          'Please click on the following link, or paste this into your browser to complete the process within ten minutes of receiving it:\n\n' +
-          `${this.url}\n\n` +
-          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
-        : '';
+    const temp = template === 'passwordReset' ? tempReset : tempVerify;
+    const html = temp.replace(/{%URL%}/, this.url);
     //define ops
     const mailOptions = {
       from:
@@ -52,8 +51,8 @@ module.exports = class Email {
           : this.from,
       to: this.to,
       subject,
-      text,
-      //html
+      html: html,
+      text: htmlToText(html),
     };
     //send email
     await this.newTransport().sendMail(mailOptions);
@@ -67,6 +66,13 @@ module.exports = class Email {
     await this.send(
       'passwordReset',
       'Your password reset token valid for only ten minutes'
+    );
+  }
+
+  async sendUserActivation() {
+    await this.send(
+      'userActivation',
+      'Your Activation token valid for only 30 minutes'
     );
   }
 };

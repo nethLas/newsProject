@@ -41,13 +41,20 @@ const userSchema = new mongoose.Schema(
       },
     },
     profilePhoto: String,
+    //password changing
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
+    //account avtivation
+    verifyToken: String,
+    verifyTokenExpires: Date,
+    verfied: {
+      type: Boolean,
+      default: false,
+    },
     active: {
       type: Boolean,
       default: true,
-      select: false,
     },
   },
   {
@@ -93,7 +100,7 @@ userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
   }
   return false;
 };
-//create password reset token
+// create password reset token
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
   this.passwordResetToken = crypto
@@ -103,6 +110,12 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
-
+// create activation token
+userSchema.methods.createActivationToken = function () {
+  const token = crypto.randomBytes(32).toString('hex');
+  this.verifyToken = crypto.createHash('sha256').update(token).digest('hex');
+  this.verifyTokenExpires = Date.now() + 30 * 60 * 1000;
+  return token;
+};
 const User = mongoose.model('user', userSchema);
 module.exports = User;
