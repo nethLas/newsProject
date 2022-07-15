@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema(
     //account avtivation
     verifyToken: String,
     verifyTokenExpires: Date,
-    verfied: {
+    verified: {
       type: Boolean,
       default: false,
     },

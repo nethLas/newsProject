@@ -11,7 +11,7 @@ const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
-//create and send the token via cookie
+//create and send the token via cookie //when user gets a token
 const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user.id);
   const cookieOptions = {
@@ -32,6 +32,10 @@ const createSendToken = (user, statusCode, req, res) => {
     },
   });
 };
+//when user doesnt get a token
+const sendUser = (user, statusCode, req, res) => {
+  res.status(statusCode).json({ status: 'success', data: { user } });
+};
 exports.signup = catchAsync(async (req, res, next) => {
   // const newUser = await User.create(req.body); very bad
   const newUser = await User.create({
@@ -40,11 +44,11 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
   });
-  console.log('created user');
-  req.user = newUser;
   //send activation email
   // this.sendActivateToken();//FIX ME
   // createSendToken(newUser, 201, req, res);
+  newUser.password = undefined;
+  sendUser(newUser, 201, req, res);
   next();
 });
 exports.login = catchAsync(async (req, res, next) => {
@@ -58,6 +62,15 @@ exports.login = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email }).select('+password');
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorect password or email', 401));
+  }
+  if (!user.verified) {
+    this.sendActivateToken(req, res, next);
+    return next(
+      new AppError(
+        'You are not verified, we are sending you a verificaton email',
+        401
+      )
+    );
   }
   //3)send token
   createSendToken(user, 200, req, res);
@@ -83,7 +96,12 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(
       new AppError('The user belonging to this token no longer exists', 401)
     );
-  //4) user changed password after jwt was issued
+  //4)Check if user is verified
+  if (!currentUser.verified)
+    return next(
+      new AppError('User must be verified in order to perform this action', 401)
+    );
+  //5) user changed password after jwt was issued
   if (currentUser.changedPasswordAfter(decoded.iat))
     return next(
       new AppError('User recently changed password! please log in again.', 401)
@@ -100,13 +118,8 @@ exports.logout = (req, res) => {
   res.status(200).json({ status: 'success' });
 };
 
-//helper for checkuser
-const sendUser = (req, res, user) => {
-  res.status(200).json({ status: 'success', data: { user } });
-};
-
 exports.checkUser = async (req, res, next) => {
-  if (!req.cookies.jwt) return sendUser(req, res, null);
+  if (!req.cookies.jwt) return sendUser(null, 200, req, res);
   try {
     const decoded = await promisify(jwt.verify)(
       req.cookies.jwt,
@@ -116,17 +129,17 @@ exports.checkUser = async (req, res, next) => {
     // 2) Check if user still exists
     const currentUser = await User.findById(decoded.id);
     if (!currentUser) {
-      return sendUser(req, res, null);
+      return sendUser(null, 200, req, res);
     }
 
     // 3) Check if user changed password after the token was issued
     if (currentUser.changedPasswordAfter(decoded.iat)) {
-      return sendUser(req, res, null);
+      return sendUser(null, 200, req, res);
     }
     //there is a user
     return sendUser(req, res, currentUser);
   } catch (error) {
-    return sendUser(req, res, null);
+    return sendUser(null, 200, req, res);
   }
 };
 //Update pass while logged in
@@ -165,7 +178,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   } catch (error) {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
-    await user.save({ validateModifiedOnly: true });
+    await user.save();
     return next(new AppError('There was an error sending the email', 500));
   }
 });
@@ -199,12 +212,13 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 //activating user
 exports.sendActivateToken = catchAsync(async (req, res, next) => {
   //1)get user based on POSTed email
-  const user = req.user || (await User.findOne({ email: req.body.email }));
+  const user = await User.findOne({ email: req.body.email });
   if (!user)
     return next(new AppError('There is no user with that email address.', 404));
-  if (user.verfied) return next(new AppError('User Already verified', 400));
+  if (user.verified) return next(new AppError('User Already verified', 400));
   //2)generate token
   const activationToken = user.createActivationToken();
+
   await user.save({ validateModifiedOnly: true });
   //3)send it to users email
   const activationUrl = `${req.protocol}://${req.get(
@@ -212,9 +226,11 @@ exports.sendActivateToken = catchAsync(async (req, res, next) => {
   )}/activate-user/${activationToken}`;
   try {
     await new Email(user, activationUrl).sendUserActivation();
-    res
-      .status(200)
-      .json({ status: 'success', message: 'Token sent to email!' });
+    if (!res.headersSent)
+      //Only send in case headers were not sent
+      res
+        .status(200)
+        .json({ status: 'success', message: 'Token sent to email!' });
   } catch (error) {
     console.log(error);
     user.verifyToken = undefined;
@@ -236,8 +252,7 @@ exports.activateAccount = catchAsync(async (req, res, next) => {
   });
   //2) If token has not expired and there is a user, activate the user
   if (!user) return next(new AppError('Token is invalid or has expired', 400));
-  //2.1) if password is the same throw error
-  user.verfied = true;
+  user.verified = true;
   user.verifyToken = undefined;
   user.verifyTokenExpires = undefined;
   await user.save({ validateModifiedOnly: true });

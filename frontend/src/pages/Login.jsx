@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, reset } from '../features/auth/authSlice';
+import AuthModal from '../components/AuthModal';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ function Login() {
     password: '',
   });
   const { email, password } = formData;
+  const [modalShow, setModalShow] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -20,7 +22,9 @@ function Login() {
   );
   //useEffects
   useEffect(() => {
-    if (isError) {
+    if (isError && message.startsWith('You are not verified')) {
+      setModalShow(true);
+    } else if (isError) {
       toast.error(message);
     }
     //redirect when logged in
@@ -81,6 +85,14 @@ function Login() {
           Dont have an account? <Link to={'/signup'}>sign up here</Link>
         </p>
       </form>
+      <AuthModal
+        show={modalShow}
+        onHide={() => {
+          setModalShow(false);
+          navigate('/');
+        }}
+        email={email}
+      />
     </>
   );
 }

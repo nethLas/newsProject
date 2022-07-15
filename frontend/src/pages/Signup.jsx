@@ -5,11 +5,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { signup, reset } from '../features/auth/authSlice';
 import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
+import AuthModal from '../components/AuthModal';
 
 function Signup() {
   const { isError, isSuccess, user, message, isLoading } = useSelector(
     (state) => state.auth
   );
+  const [modalShow, setModalShow] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     name: '',
@@ -27,8 +29,8 @@ function Signup() {
       toast.error(message);
     }
     //redirect when logged in
-    if (isSuccess && user) {
-      navigate('/');
+    if (isSuccess) {
+      setModalShow(true);
     }
     dispatch(reset());
   }, [isError, isSuccess, user, message, navigate, dispatch]);
@@ -107,6 +109,14 @@ function Signup() {
           Already registered? <Link to={'/login'}>Login here</Link>
         </p>
       </form>
+      <AuthModal
+        show={modalShow}
+        onHide={() => {
+          setModalShow(false);
+          navigate('/');
+        }}
+        email={email}
+      />
     </>
   );
 }
