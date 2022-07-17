@@ -5,15 +5,15 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { checkUser, reset } from './features/auth/authSlice';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Signup from './pages/Signup';
-import Login from './pages/Login';
+import Signup from './pages/user/Signup';
+import Login from './pages/user/Login';
 import Home from './pages/Home';
 import Navbar from './components/Navbar';
-import Profile from './pages/Profile';
+import Profile from './pages/user/Profile';
 import PrivateRoute from './components/PrivateRoute';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import ActivateUser from './pages/ActivateUser';
+import ForgotPassword from './pages/user/ForgotPassword';
+import ResetPassword from './pages/user/ResetPassword';
+import ActivateUser from './pages/user/ActivateUser';
 
 function App() {
   const dispatch = useDispatch();

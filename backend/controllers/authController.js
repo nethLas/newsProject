@@ -137,6 +137,8 @@ exports.checkUser = async (req, res, next) => {
       return sendUser(null, 200, req, res);
     }
     //there is a user
+    console.log('you are in');
+    console.log(currentUser);
     return sendUser(req, res, currentUser);
   } catch (error) {
     return sendUser(null, 200, req, res);

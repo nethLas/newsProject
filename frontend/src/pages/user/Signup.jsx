@@ -2,10 +2,10 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { signup, reset } from '../features/auth/authSlice';
+import { signup, reset } from '../../features/auth/authSlice';
 import { toast } from 'react-toastify';
-import Spinner from '../components/Spinner';
-import AuthModal from '../components/AuthModal';
+import Spinner from '../../components/Spinner';
+import AuthModal from '../../components/AuthModal';
 
 function Signup() {
   const { isError, isSuccess, user, message, isLoading } = useSelector(
