@@ -35,6 +35,10 @@ const resetPassword = async (userData) => {
   });
   return response.data.data.user;
 };
+const activateUser = async (token) => {
+  const response = await axios.patch(`${API_URL}activateAccount/${token}`);
+  return response.data.data.user;
+};
 const authService = {
   signup,
   checkUser,
@@ -43,6 +47,7 @@ const authService = {
   updateUser,
   forgotPassword,
   resetPassword,
+  activateUser,
 };
 
 export default authService;

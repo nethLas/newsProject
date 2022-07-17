@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetPassword, reset } from '../features/auth/authSlice';
+import { resetPassword, reset } from '../../features/auth/authSlice';
 import { toast } from 'react-toastify';
-import Spinner from '../components/Spinner';
+import Spinner from '../../components/Spinner';
 function ResetPassword() {
   const { isSuccess, isError, isLoading, message } = useSelector(
     (state) => state.auth

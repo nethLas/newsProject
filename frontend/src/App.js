@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import ActivateUser from './pages/ActivateUser';
 
 function App() {
   const dispatch = useDispatch();
@@ -34,6 +35,7 @@ function App() {
             </Route>
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/activate-user/:token" element={<ActivateUser />} />
             <Route path="/" element={<Home />} />
           </Routes>
         </div>

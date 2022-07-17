@@ -2,10 +2,10 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Form, Stack, Image, Button, Row, Col } from 'react-bootstrap';
 import { useState } from 'react';
-import { updateUser, reset } from '../features/auth/authSlice';
+import { updateUser, reset } from '../../features/auth/authSlice';
 import { toast } from 'react-toastify';
 import { useEffect, useRef } from 'react';
-import Spinner from '../components/Spinner';
+import Spinner from '../../components/Spinner';
 import { Link } from 'react-router-dom';
 
 function Profile() {

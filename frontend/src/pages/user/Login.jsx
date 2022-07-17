@@ -4,8 +4,9 @@ import { toast } from 'react-toastify';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { login, reset } from '../features/auth/authSlice';
-import AuthModal from '../components/AuthModal';
+import { login, reset } from '../../features/auth/authSlice';
+import AuthModal from '../../components/AuthModal';
+import Spinner from '../../components/Spinner';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -45,7 +46,9 @@ function Login() {
     };
     dispatch(login(userData));
   };
-
+  if (isLoading) {
+    return <Spinner />;
+  }
   return (
     <>
       <form onSubmit={handleSubmit}>

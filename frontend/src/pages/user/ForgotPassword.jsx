@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, Form, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { forgotPassword, reset } from '../features/auth/authSlice';
+import { forgotPassword, reset } from '../../features/auth/authSlice';
 import { toast } from 'react-toastify';
-import Spinner from '../components/Spinner';
+import Spinner from '../../components/Spinner';
 
 function ForgotPassword() {
   const { user, isSuccess, isError, isLoading, message } = useSelector(
