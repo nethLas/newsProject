@@ -15,6 +15,7 @@ function ActivateUser() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    //causing problems because of strict mode should be ok in prod
     dispatch(activateUser(token));
   }, [dispatch, token]);
 

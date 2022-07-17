@@ -139,7 +139,7 @@ exports.checkUser = async (req, res, next) => {
     //there is a user
     console.log('you are in');
     console.log(currentUser);
-    return sendUser(req, res, currentUser);
+    return sendUser(currentUser, 200, req, res);
   } catch (error) {
     return sendUser(null, 200, req, res);
   }

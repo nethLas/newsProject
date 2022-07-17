@@ -1,10 +1,8 @@
 import { Button, Container, Nav, Navbar as NavbarBs } from 'react-bootstrap';
-import { FaSignInAlt, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, NavLink } from 'react-router-dom';
 import { logout, reset } from '../features/auth/authSlice';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 function Navbar() {
   const { user, isError, isSucces, message } = useSelector(
@@ -12,10 +10,10 @@ function Navbar() {
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  //this is terrible doesnt do anything
   const handleLogout = () => {
     dispatch(logout());
-    if (isSucces) toast.success('succesfully logged out');
-    if (isError) toast.error(message);
     dispatch(reset());
     navigate('/');
   };

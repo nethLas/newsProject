@@ -20,7 +20,6 @@ function App() {
   const { user } = useSelector((state) => state.auth);
   useEffect(() => {
     dispatch(checkUser());
-    // dispatch(reset());
   }, [dispatch]);
   return (
     <>

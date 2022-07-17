@@ -75,7 +75,7 @@ function Profile() {
       <Image
         roundedCircle
         className="mx-auto"
-        style={{ width: '125px', height: '125px' }}
+        style={{ width: '125px', height: '125px', objectFit: 'cover' }}
         src={
           user.profileUrl ||
           'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dXNlciUyMGF2YXRhcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60'
