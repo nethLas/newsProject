@@ -24,7 +24,6 @@ export const login = createAsyncThunk(
   'auth/login',
   async function (user, thunkAPI) {
     try {
-      console.log('hello');
       return await authService.login(user);
     } catch (error) {
       const message =
@@ -192,7 +191,7 @@ export const authSlice = createSlice({
         //this causes problems we will log instead
         console.log(action.payload);
         // state.isError = true;
-        // state.message = action.payload;
+        state.message = action.payload;
       })
       .addCase(checkUser.pending, (state, action) => {
         state.isLoading = true;

@@ -5,9 +5,7 @@ import { logout, reset } from '../features/auth/authSlice';
 import { useNavigate } from 'react-router-dom';
 
 function Navbar() {
-  const { user, isError, isSucces, message } = useSelector(
-    (state) => state.auth
-  );
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -37,7 +35,7 @@ function Navbar() {
               Logout
             </Button>
             <Link to="/profile" style={{ marginLeft: '0.5rem' }}>
-              <Button variant="primary">View Profile</Button>
+              <Button variant="primary">Profile</Button>
             </Link>
           </>
         ) : (

@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 
 module.exports = (fileName) => {
+  //maybe promisify
   const region = process.env.AWS_BUCKET_REGION;
   const credentials = {
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,

@@ -14,6 +14,7 @@ import PrivateRoute from './components/PrivateRoute';
 import ForgotPassword from './pages/user/ForgotPassword';
 import ResetPassword from './pages/user/ResetPassword';
 import ActivateUser from './pages/user/ActivateUser';
+import CreateStory from './pages/CreateStory';
 
 function App() {
   const dispatch = useDispatch();
@@ -31,6 +32,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<PrivateRoute />}>
               <Route path="/profile" element={<Profile />} />
+            </Route>
+            <Route path="/create-story" element={<PrivateRoute />}>
+              <Route path="/create-story" element={<CreateStory />} />
             </Route>
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />

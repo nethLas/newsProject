@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { FaAngleRight, FaPen, FaArrowRight } from 'react-icons/fa';
 import { Form, Stack, Image, Button, Row, Col } from 'react-bootstrap';
 import { useState } from 'react';
 import { updateUser, reset } from '../../features/auth/authSlice';
@@ -7,6 +8,7 @@ import { toast } from 'react-toastify';
 import { useEffect, useRef } from 'react';
 import Spinner from '../../components/Spinner';
 import { Link } from 'react-router-dom';
+import Compressor from 'compressorjs';
 
 function Profile() {
   //implement chnage name and change password add all stroeis cards and stuff with photo
@@ -42,6 +44,7 @@ function Profile() {
       toast.error('Could not update profile');
     }
   };
+
   const onChangePassword = function (e) {
     e.preventDefault();
     try {
@@ -57,14 +60,44 @@ function Profile() {
       toast.error('Could not change password');
     }
   };
+
+  // const uploadUserPhoto = () => {
+  //   try {
+  //     console.log(fileInputRef.current.files[0]);
+  //     if (fileInputRef.current.files.length === 0)
+  //       return toast.error('please upload a file');
+  //     if (fileInputRef.current.files[0].size > 3 * 1024 * 1024)
+  //       return toast.error('max file size is 3Mb!');
+  //     const form = new FormData();
+  //     form.append('photo', fileInputRef.current.files[0]);
+  //     dispatch(updateUser(form));
+  //   } catch (error) {
+  //     toast.error(message);
+  //   }
+  // };
   const uploadUserPhoto = () => {
+    //not very good but i cant figure out s3-sharp
     try {
-      console.log(fileInputRef.current.files[0]);
       if (fileInputRef.current.files.length === 0)
         return toast.error('please upload a file');
+      const file = fileInputRef.current.files[0];
       const form = new FormData();
-      form.append('photo', fileInputRef.current.files[0]);
-      dispatch(updateUser(form));
+      if (file.size < 1024 * 50) {
+        form.append('photo', file);
+        dispatch(updateUser(form));
+        return;
+      }
+      new Compressor(file, {
+        quality: 0.6, // 0.6 can also be used, but its not recommended to go below.
+        success: (compressedResult) => {
+          const photo = compressedResult;
+          if (photo.size > 3 * 1024 * 1024)
+            return toast.error('max file size is 3Mb!');
+
+          form.append('photo', photo);
+          dispatch(updateUser(form));
+        },
+      });
     } catch (error) {
       toast.error(message);
     }
@@ -91,7 +124,7 @@ function Profile() {
             variant="outline-success"
             onClick={() => fileInputRef.current.click()}
           >
-            Select Photo
+            Select
           </Button>
           <input
             id="input-file"
@@ -106,7 +139,7 @@ function Profile() {
             variant="success"
             onClick={uploadUserPhoto}
           >
-            Upload Photo
+            Upload
           </Button>
         </div>
       </div>
@@ -150,6 +183,17 @@ function Profile() {
           </Col>
         </Form.Group>
       </Form>
+      <Button
+        as={Link}
+        to="/create-story"
+        variant="dark"
+        className="d-flex justify-content-between align-items-center"
+        style={{ maxWidth: '30rem' }}
+      >
+        <FaPen className="fa-lg" />
+        Write A Story
+        <FaArrowRight />
+      </Button>
       <hr />
       <div className="d-flex justify-content-between mb-4">
         <span className="fs-4 fw-bold">Change Password</span>

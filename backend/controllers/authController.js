@@ -125,20 +125,16 @@ exports.checkUser = async (req, res, next) => {
       req.cookies.jwt,
       process.env.JWT_SECRET
     );
-
     // 2) Check if user still exists
     const currentUser = await User.findById(decoded.id);
-    if (!currentUser) {
-      return sendUser(null, 200, req, res);
-    }
+    if (!currentUser) return sendUser(null, 200, req, res);
 
     // 3) Check if user changed password after the token was issued
-    if (currentUser.changedPasswordAfter(decoded.iat)) {
+    if (currentUser.changedPasswordAfter(decoded.iat))
       return sendUser(null, 200, req, res);
-    }
+
+    if (!currentUser.verified) return sendUser(null, 200, req, res);
     //there is a user
-    console.log('you are in');
-    console.log(currentUser);
     return sendUser(currentUser, 200, req, res);
   } catch (error) {
     return sendUser(null, 200, req, res);
@@ -185,6 +181,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 exports.resetPassword = catchAsync(async (req, res, next) => {
+  console.log(req.body);
   //1)get user based on token
   const hashedToken = crypto
     .createHash('sha256')
@@ -193,10 +190,12 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({
     passwordResetToken: hashedToken,
     passwordResetExpires: { $gt: Date.now() },
-  });
+  }).select('+password');
+
   //2) If token has not expired and there is a user, set the new password
   if (!user) return next(new AppError('Token is invalid or has expired', 400));
   //2.1) if password is the same throw error
+
   if (await user.correctPassword(req.body.password, user.password))
     return next(
       new AppError('New password must be different from old password', 401)

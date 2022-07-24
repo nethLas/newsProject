@@ -1,7 +1,8 @@
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const upload = require('../utils/uploadPhoto');
+const upload = require('../utils/uploadPhoto')('user');
+// const upload = require('../utils/CreateUploader');
 
 exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
@@ -29,6 +30,7 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return newObject;
 };
+
 exports.uploadUserPhoto = upload.single('photo');
 exports.upadteMe = catchAsync(async (req, res, next) => {
   //1)Create error if user POSTs password data

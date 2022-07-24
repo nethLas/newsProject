@@ -1,8 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
-
+const forms = require('multer')();
 const userRouter = require('./routes/userRoutes');
+const storyRouter = require('./routes/storyRoutes');
 const globalErrorHandler = require('./controllers/errorController');
 // const upload = require('./utils/uploadPhoto');
 
@@ -12,7 +13,11 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 //Body parser, rading data from body into req.body
+app.use((req, res, next) => {
+  next();
+});
 app.use(express.json({ limit: '10kb' }));
+// app.use(express.json({ type: 'multipart/form-data' }));
 app.use(cookieParser());
 // app.post('/upload', upload.array('photos', 1), (req, res, next) => {
 //   res.send(
@@ -20,6 +25,7 @@ app.use(cookieParser());
 //   );
 // });
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/stories', storyRouter);
 app.all('*', (req, res, next) => {
   console.log('not found');
   res.status(400).send(`can't find ${req.originalUrl}`);

@@ -29,7 +29,7 @@ function Login() {
       toast.error(message);
     }
     //redirect when logged in
-    if (isSuccess && user) {
+    if (user) {
       navigate('/');
     }
     dispatch(reset());
