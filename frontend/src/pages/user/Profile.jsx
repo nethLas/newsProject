@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { FaAngleRight, FaPen, FaArrowRight } from 'react-icons/fa';
+import { FaPen, FaArrowRight } from 'react-icons/fa';
 import { Form, Stack, Image, Button, Row, Col } from 'react-bootstrap';
 import { useState } from 'react';
 import { updateUser, reset } from '../../features/auth/authSlice';
@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import { useEffect, useRef } from 'react';
 import Spinner from '../../components/Spinner';
 import { Link } from 'react-router-dom';
-import Compressor from 'compressorjs';
+import compress from '../../utils/compress';
 
 function Profile() {
   //implement chnage name and change password add all stroeis cards and stuff with photo
@@ -61,45 +61,19 @@ function Profile() {
     }
   };
 
-  // const uploadUserPhoto = () => {
-  //   try {
-  //     console.log(fileInputRef.current.files[0]);
-  //     if (fileInputRef.current.files.length === 0)
-  //       return toast.error('please upload a file');
-  //     if (fileInputRef.current.files[0].size > 3 * 1024 * 1024)
-  //       return toast.error('max file size is 3Mb!');
-  //     const form = new FormData();
-  //     form.append('photo', fileInputRef.current.files[0]);
-  //     dispatch(updateUser(form));
-  //   } catch (error) {
-  //     toast.error(message);
-  //   }
-  // };
-  const uploadUserPhoto = () => {
-    //not very good but i cant figure out s3-sharp
+  const uploadUserPhoto = async () => {
     try {
-      if (fileInputRef.current.files.length === 0)
-        return toast.error('please upload a file');
       const file = fileInputRef.current.files[0];
-      const form = new FormData();
-      if (file.size < 1024 * 50) {
-        form.append('photo', file);
-        dispatch(updateUser(form));
-        return;
-      }
-      new Compressor(file, {
-        quality: 0.6, // 0.6 can also be used, but its not recommended to go below.
-        success: (compressedResult) => {
-          const photo = compressedResult;
-          if (photo.size > 3 * 1024 * 1024)
-            return toast.error('max file size is 3Mb!');
-
-          form.append('photo', photo);
-          dispatch(updateUser(form));
-        },
+      if (!file) return toast.error('please upload a file');
+      const photo = await compress(file, {
+        maxSize: 3 * 1024 * 1024,
+        quality: 0.8,
       });
+      const form = new FormData();
+      form.append('photo', photo);
+      dispatch(updateUser(form));
     } catch (error) {
-      toast.error(message);
+      toast.error(message || error.message);
     }
   };
   if (isLoading) return <Spinner />;

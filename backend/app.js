@@ -1,7 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
-const forms = require('multer')();
 const userRouter = require('./routes/userRoutes');
 const storyRouter = require('./routes/storyRoutes');
 const globalErrorHandler = require('./controllers/errorController');
