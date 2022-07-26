@@ -2,6 +2,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 // const APIFeatures = require('../utils/apiFeatures');
 
+// const getCollectionName = (Model) => Model.collection.collectionName;
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
     // try {
@@ -25,6 +26,7 @@ exports.getOne = (Model, populateOptions) =>
       status: 'success',
       data: {
         data: doc,
+        // data: { [getCollectionName(Model)]: docs },
       },
     });
   });

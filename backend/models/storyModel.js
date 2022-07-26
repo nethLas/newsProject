@@ -10,7 +10,7 @@ const storySchema = new mongoose.Schema(
       required: [true, 'A story must have a title'],
       unique: true,
       trim: true,
-      maxlength: [40, 'A story title must have less than 40 characters'],
+      maxlength: [100, 'A story title must have less than 40 characters'],
       minlength: [10, 'A story title must have more than 10 characters'],
     },
     author: {
@@ -22,13 +22,13 @@ const storySchema = new mongoose.Schema(
       type: String,
       required: [true, 'A story must contain text'],
       trim: true,
-      maxlength: [800, 'A story title must have less than 800 characters'],
+      maxlength: [3000, 'A story title must have less than 3000 characters'],
       minlength: [100, 'A story title must have more than 100 characters'],
     },
     summary: {
       type: String,
       trim: true,
-      maxlength: [100, 'A story summary must have less than 100 characters'],
+      maxlength: [200, 'A story summary must have less than 100 characters'],
     },
     slug: String,
     imageCover: {

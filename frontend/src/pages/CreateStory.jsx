@@ -1,10 +1,14 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Form, Card, FloatingLabel, Row, Col, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import getLocation from '../utils/getLocation';
-import axios from 'axios';
-
+import compress from '../utils/compress';
+import { useSelector, useDispatch } from 'react-redux';
+import { createStory } from '../features/stories/storiesSlice';
+import Spinner from '../components/Spinner';
+import { useNavigate } from 'react-router-dom';
+import { reset } from '../features/stories/storiesSlice';
 const defaultLocation = {
   address: '',
   description: '',
@@ -13,6 +17,11 @@ const defaultLocation = {
 };
 function CreateStory() {
   // const geolocationEnabled = process.env.REACT_APP_GEOLOCATIONENABLED;
+  const { isLoading, isSuccess, isError, message } = useSelector(
+    (state) => state.stories
+  );
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const geolocationEnabled = true;
   const [formData, setFormData] = useState({
     title: '',
@@ -23,6 +32,13 @@ function CreateStory() {
   const { title, summary, text } = formData;
   const [sources, setSources] = useState(['']);
   const [locations, setLocations] = useState([{ ...defaultLocation }]);
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success('Successfully created Story');
+      dispatch(reset());
+      navigate('/');
+    }
+  });
   const onMutate = function (e) {
     //files
     if (e.target.files) {
@@ -62,100 +78,109 @@ function CreateStory() {
     setLocations(newLocations);
   };
   const onSubmit = async (e) => {
+    //could do both imageCompress and geocode at the same time(a bit complicated)
     e.preventDefault();
     try {
-      const formattedLocations = await checkAllValidLocations(locations);
+      //1 locations
+      const formattedLocations = geolocationEnabled
+        ? await checkLocationsGeoEnabled(locations)
+        : checkLocationsGeoDisabled(locations);
+      //2 sources
+      const filteredSources = checkSources(sources);
+      //3 images //file list is not an array so little trick
+      const start = Date.now();
+      const images = await Promise.all(
+        [...formData.images].map((img) =>
+          compress(img, {
+            maxSize: 3 * 1024 * 1024,
+            quality: 0.8,
+          })
+        )
+      );
+      console.log(`finished all compression in: ${Date.now() - start}`);
+      //4 Assemble
       const form = new FormData();
-      form.append('imageCover', formData.images[0]);
-      form.append('images', formData.images[1]);
+      form.append('imageCover', images[0]);
+      images.forEach(
+        (img, idx) => idx !== 0 && form.append('images', images[idx])
+      );
       const data = {
         locations: formattedLocations,
+        sources: filteredSources,
         ...formData,
-        sources: [sources[0]],
         images: undefined,
       };
       form.append('data', JSON.stringify(data));
       for (var pair of form.entries()) {
         console.log(pair[0] + ', ' + pair[1]);
       }
-      await axios.post('/api/v1/stories', form);
+      dispatch(createStory(form));
+      if (isSuccess) {
+        toast.success('waited?');
+      }
     } catch (error) {
       toast.error(error.message);
       console.log(error);
     }
-    // const start = Date.now();
-    // console.log(
-    //   await Promise.all([
-    //     getLocation(locations[0].address),
-    //     getLocation(locations[1].address),
-    //   ])
-    // console.log(await getLocation(locations[0].address));
-    // console.log(await getLocation(locations[0].address));
-    // console.log(`finished in: ${Date.now() - start}`);
   };
-  const checkAllValidLocations = async (locations) => {
-    const checkDescription = (description) =>
-      description.length < 10 || description.length > 60;
-    const checkFields = (...fields) => fields.some((field) => !field);
-
+  const checkSources = () => {
+    return sources.filter((url) => url);
+  };
+  const checkLocationsGeoDisabled = (locations) => {
     if (!(locations instanceof Array)) throw new TypeError('Expected an Array');
     let validLocations = [];
-    if (!geolocationEnabled) {
-      locations.forEach((location) => {
-        if (!objectHasValues(location)) return; //if empty object just skip it
-        const { description, latitude, longitude } = location;
-        const [lat, lng] = [+latitude, +longitude]; //Convert to numbers
-        if (checkFields(description, lat, lng))
-          throw new Error('Missing one or more Location fields');
-        if (checkDescription(description))
-          throw new Error(
-            'Description should be between 10 and 60 characters long'
-          );
-        if (lat > 90 || lat < -90 || lng > 180 || lng < -180)
-          throw new Error(
-            'PLease Provide valid coordinates: Latitude must be between -90° and 90° and longitude must be between -180° and 180°'
-          );
-        validLocations.push({
-          type: 'Point',
-          description,
-          coordinates: [lat, lng],
-        });
+    locations.forEach((location) => {
+      if (!objectHasValues(location)) return; //if empty object just skip it
+      const { description, latitude, longitude } = location;
+      const [lat, lng] = [+latitude, +longitude]; //Convert to numbers
+      if (!description || !lat || !lng)
+        throw new Error('Missing one or more Location fields');
+      if (description.length < 10 || description.length > 60)
+        throw new Error('Description should be 10 to 60 characters long');
+      if (lat > 90 || lat < -90 || lng > 180 || lng < -180)
+        throw new Error(
+          'PLease Provide valid coordinates: Latitude must be between -90° and 90° and longitude must be between -180° and 180°'
+        );
+      validLocations.push({
+        type: 'Point',
+        description,
+        coordinates: [lat, lng],
       });
-      return validLocations;
-    } else {
-      locations.forEach((location) => {
-        if (!objectHasValues(location)) return; //if empty object just skip it
-        const { address, description } = location;
-        if (checkFields(description, address))
-          throw new Error('Missing one or more Location fields');
-        if (checkDescription(description))
-          throw new Error(
-            'Description should be between 10 and 60 characters long'
-          );
-        if (address.length < 15)
-          throw new Error(
-            'Address must be longer than 15 chars for us to find it'
-          );
-        validLocations.push({ address, description });
-      });
-      let locationPromises = await Promise.all(
-        validLocations.map((loc) => getLocation(loc.address))
-      );
-      console.log(validLocations);
-      locationPromises.forEach((location, idx) => {
-        location.description = validLocations[idx].description;
-        location.coordinates = [location.lng, location.lat];
-        location.address = location.formatted;
-        location.type = 'Point';
-        delete location.lat;
-        delete location.lng;
-        delete location.formatted;
-      });
-      console.log(locationPromises);
-      return locationPromises;
-    }
-    // console.log(validLocations);
+    });
   };
+  const checkLocationsGeoEnabled = async (locations) => {
+    if (!(locations instanceof Array)) throw new TypeError('Expected an Array');
+    let potentialLocations = [];
+
+    //basic validation added to list of locations to
+    locations.forEach((location) => {
+      if (!objectHasValues(location)) return; //if empty object just skip it
+      const { address, description } = location;
+      if (!description || !address)
+        throw new Error('Missing one or more Location fields');
+      if (description.length < 10 || description.length > 60)
+        throw new Error('Description should be 10 to 60 characters long');
+      if (address.length < 15)
+        throw new Error(
+          'Address must be longer than 15 chars for us to find it'
+        );
+      potentialLocations.push({ address, description });
+    });
+
+    let locationPromises = await Promise.all(
+      potentialLocations.map((loc) => getLocation(loc.address))
+    );
+    const finalLocations = locationPromises.map((location, idx) => {
+      return {
+        description: potentialLocations[idx].description, //desc is only stored in original locs
+        coordinates: [location.lng, location.lat],
+        address: location.formatted,
+        type: 'Point',
+      };
+    });
+    return finalLocations;
+  };
+  if (isLoading) return <Spinner />;
   return (
     <Form onSubmit={onSubmit}>
       <Form.Group>
@@ -299,7 +324,7 @@ function CreateStory() {
           onChange={onMutate}
         />
       </Form.Group>
-      <div className="d-grid gap-2">
+      <div className="d-grid gap-2 mb-2">
         <Button type="submit" size="lg">
           Create Story
         </Button>

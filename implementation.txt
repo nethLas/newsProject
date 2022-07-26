@@ -1,5 +1,0 @@
-1) Only if verified send cookie on login else send mail and tell user//done
-2) when sign up dont send cookie//done
-3) Login if verified-login, else-send verify email + alert user//done
-4) user in redux state is ONLY verified user//done
-5) maybe add in user model schema funcs token for activation//no
