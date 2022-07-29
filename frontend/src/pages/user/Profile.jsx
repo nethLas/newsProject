@@ -69,6 +69,7 @@ function Profile() {
         maxSize: 3 * 1024 * 1024,
         quality: 0.8,
       });
+      photo.originalname = file.name;
       const form = new FormData();
       form.append('photo', photo);
       dispatch(updateUser(form));

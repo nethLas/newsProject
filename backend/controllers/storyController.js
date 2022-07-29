@@ -16,8 +16,10 @@ exports.setBody = (req, res, next) => {
   req.body.author = req.user._id.toString();
   next();
 };
+
 // exports.setUserId = (req, res, next) => {
 //   next();
 // };
 exports.createStory = factory.createOne(Story);
 exports.getStory = factory.getOne(Story);
+exports.getAllStories = factory.getAll(Story);

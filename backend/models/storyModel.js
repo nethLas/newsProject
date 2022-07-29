@@ -22,13 +22,13 @@ const storySchema = new mongoose.Schema(
       type: String,
       required: [true, 'A story must contain text'],
       trim: true,
-      maxlength: [3000, 'A story title must have less than 3000 characters'],
+      maxlength: [3500, 'A story title must have less than 3500 characters'],
       minlength: [100, 'A story title must have more than 100 characters'],
     },
     summary: {
       type: String,
       trim: true,
-      maxlength: [200, 'A story summary must have less than 100 characters'],
+      // maxlength: [250, 'A story summary must have less than 250 characters'],
     },
     slug: String,
     imageCover: {
@@ -78,11 +78,15 @@ storySchema.virtual('imageUrls').get(function () {
     : undefined;
 });
 storySchema.pre(/^find/, function (next) {
+  //cost about 100ms
   this.populate({
     path: 'author',
-    select: 'name',
+    select: 'name profilePhoto',
   });
   next();
 });
+// storySchema.post(/^find/, function () {
+
+// });
 const Story = mongoose.model('Story', storySchema);
 module.exports = Story;

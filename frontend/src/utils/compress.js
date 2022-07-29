@@ -13,6 +13,7 @@ export default async function compress(file, options) {
       quality, // 0.6 can also be used, but its not recommended to go below.
       success: (compressedResult) => {
         const photo = compressedResult;
+        photo.name = file.name;
         console.log(
           `started: ${file.size} finished: ${compressedResult.size},time: ${
             Date.now() - start

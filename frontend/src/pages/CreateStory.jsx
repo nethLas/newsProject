@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { createStory } from '../features/stories/storiesSlice';
 import Spinner from '../components/Spinner';
 import { useNavigate } from 'react-router-dom';
-import { reset } from '../features/stories/storiesSlice';
+import { reset, setLoading } from '../features/stories/storiesSlice';
 const defaultLocation = {
   address: '',
   description: '',
@@ -38,7 +38,12 @@ function CreateStory() {
       dispatch(reset());
       navigate('/');
     }
-  });
+    if (isError) {
+      toast.error(message);
+      dispatch(reset());
+      navigate('/');
+    }
+  }, [isSuccess, isError, dispatch, navigate, message]);
   const onMutate = function (e) {
     //files
     if (e.target.files) {
@@ -81,6 +86,7 @@ function CreateStory() {
     //could do both imageCompress and geocode at the same time(a bit complicated)
     e.preventDefault();
     try {
+      dispatch(setLoading());
       //1 locations
       const formattedLocations = geolocationEnabled
         ? await checkLocationsGeoEnabled(locations)
@@ -115,9 +121,6 @@ function CreateStory() {
         console.log(pair[0] + ', ' + pair[1]);
       }
       dispatch(createStory(form));
-      if (isSuccess) {
-        toast.success('waited?');
-      }
     } catch (error) {
       toast.error(error.message);
       console.log(error);

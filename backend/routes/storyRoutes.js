@@ -5,16 +5,14 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.route('/').post(
-  (req, res, next) => {
-    // console.log(req.body);
-    next();
-  },
-  authController.protect,
-  storyController.uploadStoryImages,
-  storyController.setBody,
-  // storyController.setUserId,
-  storyController.createStory
-);
+router
+  .route('/')
+  .post(
+    authController.protect,
+    storyController.uploadStoryImages,
+    storyController.setBody,
+    storyController.createStory
+  )
+  .get(storyController.getAllStories);
 router.route('/:id').get(storyController.getStory);
 module.exports = router;

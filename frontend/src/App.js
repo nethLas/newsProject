@@ -15,6 +15,7 @@ import ForgotPassword from './pages/user/ForgotPassword';
 import ResetPassword from './pages/user/ResetPassword';
 import ActivateUser from './pages/user/ActivateUser';
 import CreateStory from './pages/CreateStory';
+import Story from './pages/Story';
 
 function App() {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/activate-user/:token" element={<ActivateUser />} />
+            <Route path="/story/:slug" element={<Story />} />
             <Route path="/" element={<Home />} />
           </Routes>
         </div>

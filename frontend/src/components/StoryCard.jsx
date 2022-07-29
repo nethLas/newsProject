@@ -1,38 +1,57 @@
 import React from 'react';
 import { Stack, Image } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 const options = { year: 'numeric', month: 'long', day: 'numeric' };
 function StoryCard({ story }) {
+  const navigate = useNavigate();
   return (
     <>
       <hr />
       <Stack
         direction="horizontal"
-        className="d-flex "
-        style={{ textAlign: 'left', alignItems: 'flex-start' }}
+        className="d-flex justify-content-between"
+        style={{ textAlign: 'left', alignItems: 'center' }}
       >
-        <div className="">
+        <div
+          className="me-auto "
+          onClick={() => navigate(`/story/${story.slug}`)}
+        >
           <h3 className="fw-bold">{story.title}</h3>
           {story.summary && (
             <p className="d-none d-md-block">{story.summary}</p>
           )}
           <span className="text-muted">
             {new Date(story.createdAt).toLocaleDateString('en-US', options)} |{' '}
-            {story.author.name}
+            {story?.author?.name}
           </span>
         </div>
-        <Image //change image size based on screen size
-          className="ms-auto d-none d-sm-block"
-          // className="ms-auto"
-          src={story.imageCoverUrl}
-          alt=""
-          style={{ height: '136', width: '200px', objectFit: 'cover' }}
-          // loading="lazy"
-        />
+
+        <div
+          className="d-none d-sm-block"
+          style={{
+            height: '136px',
+            width: '200px',
+            marginLeft: '2rem',
+          }}
+        >
+          <Image //change image size based on screen size
+            style={{ objectFit: 'cover', height: '136px', width: '200px' }}
+            src={story.imageCoverUrl}
+            alt=""
+          />
+        </div>
+
         <Image
-          className="d-sm-none ms-auto"
+          className="d-sm-none"
           src={story.imageCoverUrl}
           alt=""
-          style={{ height: '100px', width: '100px', objectFit: 'cover' }}
+          style={{
+            height: '100px',
+            width: '100px',
+            objectFit: 'cover',
+            marginLeft: '1rem',
+          }}
         />
       </Stack>
     </>
