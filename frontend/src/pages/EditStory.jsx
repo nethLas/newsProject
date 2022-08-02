@@ -5,45 +5,91 @@ import { toast } from 'react-toastify';
 import getLocation from '../utils/getLocation';
 import compress from '../utils/compress';
 import { useSelector, useDispatch } from 'react-redux';
-import { createStory } from '../features/stories/storiesSlice';
+import { updateStory } from '../features/stories/storiesSlice';
 import Spinner from '../components/Spinner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { reset, setLoading } from '../features/stories/storiesSlice';
+import { updateUserStory } from '../features/auth/authSlice';
+import { useMemo } from 'react';
 const defaultLocation = {
   address: '',
   description: '',
   latitude: '',
   longitude: '',
 };
-function CreateStory() {
+function EditStory() {
   // const geolocationEnabled = process.env.REACT_APP_GEOLOCATIONENABLED;
-  const { isLoading, isSuccess, isError, message } = useSelector(
-    (state) => state.stories
-  );
+  const {
+    isLoading,
+    isSuccess,
+    isError,
+    message,
+    story: editedStory,
+  } = useSelector((state) => state.stories);
+  const { id } = useParams();
+  const { user } = useSelector((state) => state.auth);
+  const story = useMemo(() => {
+    //i want to only run once
+    return user.stories?.find((story) => {
+      console.log('run');
+      return story.id === id;
+    });
+  }, [id, user.stories]);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const geolocationEnabled = true;
   const [formData, setFormData] = useState({
-    title: '',
-    summary: '',
-    text: '',
+    title: story.title || '',
+    summary: story.summary || '',
+    text: story.text || '',
     images: {},
   });
   const { title, summary, text } = formData;
-  const [sources, setSources] = useState(['']);
-  const [locations, setLocations] = useState([{ ...defaultLocation }]);
+  const [sources, setSources] = useState(
+    story.sources?.length > 0 ? [...story.sources] : ['']
+  );
+  const [locations, setLocations] = useState(
+    story.locations?.length > 0
+      ? story.locations.map((location) => {
+          //need to create copies since state is immutable
+          if (geolocationEnabled)
+            return {
+              address: location.address,
+              description: location.description,
+            };
+          else {
+            return {
+              longitude: location.coordinates[0],
+              latitude: location.coordinates[1],
+              description: location.description,
+            };
+          }
+        })
+      : [{ ...defaultLocation }]
+  );
+
+  useEffect(() => {
+    if (!story) {
+      toast.error('Sorry we could not find that story');
+      navigate('/');
+    }
+  }, [user, id, story, navigate]);
+
   useEffect(() => {
     if (isSuccess) {
-      toast.success('Successfully created Story');
+      toast.success('Successfully Edited Story');
       dispatch(reset());
-      navigate('/');
+      dispatch(updateUserStory(editedStory));
+      navigate('/profile');
     }
     if (isError) {
       toast.error(message);
       dispatch(reset());
       navigate('/');
     }
-  }, [isSuccess, isError, dispatch, navigate, message]);
+  }, [isSuccess, isError, dispatch, navigate, message, editedStory]);
+
   const onMutate = function (e) {
     //files
     if (e.target.files) {
@@ -94,22 +140,25 @@ function CreateStory() {
       //2 sources
       const filteredSources = checkSources(sources);
       //3 images //file list is not an array so little trick
-      const start = Date.now();
-      const images = await Promise.all(
-        [...formData.images].map((img) =>
-          compress(img, {
-            maxSize: 3 * 1024 * 1024,
-            quality: 0.8,
-          })
-        )
-      );
-      console.log(`finished all compression in: ${Date.now() - start}`);
-      //4 Assemble
       const form = new FormData();
-      form.append('imageCover', images[0]);
-      images.forEach(
-        (img, idx) => idx !== 0 && form.append('images', images[idx])
-      );
+
+      if (objectHasValues(formData.images)) {
+        const start = Date.now();
+        const images = await Promise.all(
+          [...formData.images].map((img) =>
+            compress(img, {
+              maxSize: 3 * 1024 * 1024,
+              quality: 0.8,
+            })
+          )
+        );
+        console.log(`finished all compression in: ${Date.now() - start}`);
+        //4 Assemble
+        form.append('imageCover', images[0]);
+        images.forEach(
+          (img, idx) => idx !== 0 && form.append('images', images[idx])
+        );
+      }
       const data = {
         locations: formattedLocations,
         sources: filteredSources,
@@ -120,10 +169,9 @@ function CreateStory() {
       for (var pair of form.entries()) {
         console.log(pair[0] + ', ' + pair[1]);
       }
-      dispatch(createStory(form));
+      dispatch(updateStory({ formData: form, storyId: id }));
     } catch (error) {
       dispatch(setLoading(false));
-
       toast.error(error.message);
       console.log(error);
     }
@@ -318,6 +366,9 @@ function CreateStory() {
       <Form.Group className="mb-3" style={{ textAlign: 'left' }}>
         <Form.Label className="fw-bold">Images</Form.Label>
         <p className="text-muted">The first image will be the cover (max 6).</p>
+        <p className="text-muted">
+          If you don't choose new images the previous ones will remain
+        </p>
         <Form.Control
           type="file"
           id="images"
@@ -325,17 +376,16 @@ function CreateStory() {
           max="6"
           accept=".jpg,.png,.jfif,.jpeg"
           multiple
-          required
           onChange={onMutate}
         />
       </Form.Group>
       <div className="d-grid gap-2 mb-2">
         <Button type="submit" size="lg">
-          Create Story
+          Edit Story
         </Button>
       </div>
     </Form>
   );
 }
 
-export default CreateStory;
+export default EditStory;

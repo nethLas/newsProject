@@ -16,6 +16,7 @@ import ResetPassword from './pages/user/ResetPassword';
 import ActivateUser from './pages/user/ActivateUser';
 import CreateStory from './pages/CreateStory';
 import Story from './pages/Story';
+import EditStory from './pages/EditStory';
 
 function App() {
   const dispatch = useDispatch();
@@ -36,6 +37,9 @@ function App() {
             </Route>
             <Route path="/create-story" element={<PrivateRoute />}>
               <Route path="/create-story" element={<CreateStory />} />
+            </Route>
+            <Route path="/edit-story/:id" element={<PrivateRoute />}>
+              <Route path="/edit-story/:id" element={<EditStory />} />
             </Route>
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />

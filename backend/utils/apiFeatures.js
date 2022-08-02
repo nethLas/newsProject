@@ -12,6 +12,7 @@ class APIFeatures {
 
     //as soon as query is awaited it is executed
     //sorting
+    // eslint-disable-next-line node/no-unsupported-features/es-syntax
     const queryObj = { ...this.queryString };
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
@@ -45,7 +46,7 @@ class APIFeatures {
     //4 pagination
     const page = this.queryString.page * 1 || 1;
     const limit = this.queryString.limit * 1 || 100;
-    const skip = (page - 1) * limit;
+    const skip = this.queryString.skip || (page - 1) * limit;
     this.query = this.query.skip(skip).limit(limit);
     return this;
   }

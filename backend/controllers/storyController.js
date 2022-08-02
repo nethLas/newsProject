@@ -22,4 +22,10 @@ exports.setBody = (req, res, next) => {
 // };
 exports.createStory = factory.createOne(Story);
 exports.getStory = factory.getOne(Story);
-exports.getAllStories = factory.getAll(Story);
+exports.getAllStories = factory.getAll(Story, {
+  paramName: 'userId', //the name in the query string
+  foreignField: 'author', //the field in story that holds a user
+});
+exports.isOwner = factory.isOwner(Story, 'author');
+exports.deleteStory = factory.deleteOne(Story);
+exports.updateStory = factory.updateOne(Story);

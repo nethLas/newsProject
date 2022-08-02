@@ -1,39 +1,61 @@
-import React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Button } from 'react-bootstrap';
-import { useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getStories, reset } from '../features/stories/storiesSlice';
+import {
+  getStories,
+  reset,
+  loadMoreStories,
+} from '../features/stories/storiesSlice';
 import StoryCard from '../components/StoryCard';
 import StoryCardPlaceholder from '../components/StoryCardPlaceholder';
 import { toast } from 'react-toastify';
-import { useState } from 'react';
+import { FaArrowCircleDown } from 'react-icons/fa';
 
 function Home() {
-  const { isLoading, stories, isError, message } = useSelector(
-    (state) => state.stories
-  );
-  const [lastStoryIdx, setLastStoryIdx] = useState(0);
+  const { isLoading, stories, isError, message, moreStories, isLoadingMore } =
+    useSelector((state) => state.stories);
   const dispatch = useDispatch();
   useEffect(() => {
+    console.log('from home');
     if (isError) toast.error(message);
-    dispatch(getStories());
-
     return () => dispatch(reset());
-  }, [dispatch, isError, message]);
+  }, [isError, message, dispatch]);
 
-  if (isLoading || stories.length === 0)
-    return Array.from({ length: 5 }).map((_, i) => (
+  useEffect(() => {
+    if (stories.length === 0) dispatch(getStories());
+    return () => dispatch(reset());
+  }, [stories, dispatch]);
+
+  const getMoreStories = () => {
+    dispatch(loadMoreStories({ limit: 2 }));
+  };
+  const createPlaceholders = (amount) => {
+    return Array.from({ length: amount }).map((_, i) => (
       <StoryCardPlaceholder key={i} />
     ));
+  };
+
+  if (isLoading || stories.length === 0) return createPlaceholders(5);
   return (
     <>
       {stories.map((story, i) => (
         <StoryCard story={story} key={i} />
       ))}
-      <Button onClick={() => dispatch(getStories({ page: 2, limit: 2 }))}>
-        press me
-      </Button>
+      {isLoadingMore && createPlaceholders(3)}
+      {moreStories && !isLoadingMore && (
+        <Button
+          onClick={getMoreStories}
+          style={{
+            alignContent: 'baseline',
+            backgroundColor: 'transparent',
+            borderColor: 'transparent',
+          }}
+          className="text-muted"
+        >
+          <FaArrowCircleDown /> LOAD MORE
+        </Button>
+      )}
+      {!moreStories && <p>No More Stories</p>}
     </>
   );
 }

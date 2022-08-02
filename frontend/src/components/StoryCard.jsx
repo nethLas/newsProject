@@ -1,13 +1,27 @@
 import React from 'react';
 import { Stack, Image } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { FaTrash, FaPen } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 const options = { year: 'numeric', month: 'long', day: 'numeric' };
-function StoryCard({ story }) {
+function StoryCard({ story, onEdit, onDelete }) {
   const navigate = useNavigate();
+
   return (
     <>
       <hr />
+      {onEdit && onDelete && (
+        <div className="d-flex mb-2">
+          <FaPen
+            style={{ fontSize: '1.25em' }}
+            className="ms-auto"
+            onClick={() => onEdit(story.id)}
+          />
+          <FaTrash
+            style={{ color: 'red', fontSize: '1.25em', marginLeft: '1rem' }}
+            onClick={() => onDelete(story.id)}
+          />
+        </div>
+      )}
       <Stack
         direction="horizontal"
         className="d-flex justify-content-between"

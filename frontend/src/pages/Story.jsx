@@ -18,17 +18,16 @@ const options = {
 };
 
 function Story() {
-  const { story, isLoading, isError, message } = useSelector(
-    (state) => state.stories
-  );
+  const { story, isLoading, isError } = useSelector((state) => state.stories);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { slug } = useParams();
   useEffect(() => {
-    if (isError) toast.error(message);
-    dispatch(getStory(slug));
+    if (isError) {
+      navigate('/'); //navigate doesnt end execution
+    } else dispatch(getStory(slug));
     return () => dispatch(reset());
-  }, [dispatch, isError, message]);
+  }, [dispatch, isError, slug, navigate]);
 
   if (isLoading || Object.keys(story).length === 0) return <Spinner />;
   return (
@@ -36,6 +35,7 @@ function Story() {
       <h2 className="fw-bold">{story.title}</h2>
       <p className="text-muted fs-3">{story.summary}</p>
       <hr />
+
       <Carousel
         style={{ aspectRatio: '18.5/9' }}
         interval={2000}
@@ -44,7 +44,7 @@ function Story() {
         <Carousel.Item>
           <img className="w-100" src={story.imageCoverUrl} alt="First slide" />
         </Carousel.Item>
-        {story.imageUrls.map((img, i) => {
+        {story.imageUrls?.map((img, i) => {
           return (
             <Carousel.Item key={i}>
               <img className="w-100" src={img} alt="First slide" />
@@ -52,6 +52,7 @@ function Story() {
           );
         })}
       </Carousel>
+
       <hr />
       <Stack gap={2} direction="vertical">
         <div style={{ alignContent: 'center' }}>
@@ -78,38 +79,38 @@ function Story() {
         <Card.Header>Sources</Card.Header>
         <ListGroup variant="flush">
           {story.sources.map((source) => (
-            <ListGroup.Item>
+            <ListGroup.Item key={source}>
               {new URL(source).hostname} :{' '}
-              <Card.Link key={source} href={source}>
-                {source}
-              </Card.Link>
+              <Card.Link href={source}>{source}</Card.Link>
             </ListGroup.Item>
           ))}
         </ListGroup>
       </Card>
       <hr />
-      <div>
-        <MapContainer
-          center={story.locations[0].coordinates.slice().reverse()}
-          className="mb-3"
-          scrollWheelZoom={false}
-          style={{ height: '400px' }}
-        >
-          <TileLayer
-            attribution='Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | <a href="https://openmaptiles.org/" target="_blank">© OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a> contributors'
-            url={`https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${process.env.REACT_APP_GEOCODE_API_KEY}`}
-          />
-          {story.locations.map((location, i) => (
-            <Marker
-              key={location._id}
-              position={location.coordinates.slice().reverse()}
-            >
-              <Popup>{location.description}</Popup>
-            </Marker>
-          ))}
-          <CenterMap locations={story.locations} />
-        </MapContainer>
-      </div>
+      {story.locations?.length !== 0 && (
+        <div>
+          <MapContainer
+            center={story.locations[0].coordinates.slice().reverse()}
+            className="mb-3"
+            scrollWheelZoom={false}
+            style={{ height: '400px' }}
+          >
+            <TileLayer
+              attribution='Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | <a href="https://openmaptiles.org/" target="_blank">© OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a> contributors'
+              url={`https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${process.env.REACT_APP_GEOCODE_API_KEY}`}
+            />
+            {story.locations.map((location, i) => (
+              <Marker
+                key={location._id}
+                position={location.coordinates.slice().reverse()}
+              >
+                <Popup>{location.description}</Popup>
+              </Marker>
+            ))}
+            <CenterMap locations={story.locations} />
+          </MapContainer>
+        </div>
+      )}
     </div>
   );
 }

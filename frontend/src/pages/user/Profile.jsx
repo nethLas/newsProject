@@ -3,11 +3,20 @@ import { useSelector, useDispatch } from 'react-redux';
 import { FaPen, FaArrowRight } from 'react-icons/fa';
 import { Form, Stack, Image, Button, Row, Col } from 'react-bootstrap';
 import { useState } from 'react';
-import { updateUser, reset } from '../../features/auth/authSlice';
+import {
+  updateUser,
+  reset,
+  removeUserStory,
+} from '../../features/auth/authSlice';
+import {
+  deleteStory,
+  reset as storyReset,
+} from '../../features/stories/storiesSlice';
 import { toast } from 'react-toastify';
 import { useEffect, useRef } from 'react';
 import Spinner from '../../components/Spinner';
-import { Link } from 'react-router-dom';
+import StoryCard from '../../components/StoryCard';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import compress from '../../utils/compress';
 
 function Profile() {
@@ -25,9 +34,16 @@ function Profile() {
   const { name, passwordCurrent, password, passwordConfirm } = formData;
   const fileInputRef = useRef();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
+    if (isError) toast.success(message);
     dispatch(reset());
   }, [isError, isSuccess, user, message, dispatch]);
+  useEffect(() => {
+    //this should only run when story is edited or removed
+    console.log('story reset');
+    dispatch(storyReset());
+  }, [user.stories, dispatch]);
 
   const onChange = function (e) {
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -77,6 +93,17 @@ function Profile() {
       toast.error(message || error.message);
     }
   };
+
+  const onDelete = (storyId) => {
+    if (!window.confirm(`You sure you want to delete this story ${storyId}`))
+      return;
+    dispatch(deleteStory(storyId));
+    dispatch(removeUserStory(storyId));
+  };
+  const onEdit = (storyId) => {
+    navigate(`/edit-story/${storyId}`);
+  };
+
   if (isLoading) return <Spinner />;
   return (
     <Stack gap={2}>
@@ -169,6 +196,24 @@ function Profile() {
         Write A Story
         <FaArrowRight />
       </Button>
+      <hr />
+      <div style={{ textAlign: 'left' }}>
+        <span className="fs-4 fw-bold ">Your Stories</span>
+        {user.stories?.length > 0 ? (
+          user.stories.map((story) => {
+            return (
+              <StoryCard
+                story={story}
+                key={story.id}
+                onDelete={onDelete}
+                onEdit={onEdit}
+              />
+            );
+          })
+        ) : (
+          <h5 className="fs-3 ">Your Don't have any stories yet</h5>
+        )}
+      </div>
       <hr />
       <div className="d-flex justify-content-between mb-4">
         <span className="fs-4 fw-bold">Change Password</span>

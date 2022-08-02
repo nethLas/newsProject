@@ -24,6 +24,7 @@ const createSendToken = (user, statusCode, req, res) => {
   res.cookie('jwt', token, cookieOptions);
   //Remove password from output
   user.password = undefined;
+  User.populate(user, { path: 'stories' });
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -61,6 +62,7 @@ exports.login = catchAsync(async (req, res, next) => {
   //2)check if user exists and passowrd correct
   const user = await User.findOne({ email }).select('+password');
   if (!user || !(await user.correctPassword(password, user.password))) {
+    //super expensive
     return next(new AppError('Incorect password or email', 401));
   }
   if (!user.verified) {
@@ -126,7 +128,7 @@ exports.checkUser = async (req, res, next) => {
       process.env.JWT_SECRET
     );
     // 2) Check if user still exists
-    const currentUser = await User.findById(decoded.id);
+    const currentUser = await User.findById(decoded.id).populate('stories');
     if (!currentUser) return sendUser(null, 200, req, res);
 
     // 3) Check if user changed password after the token was issued
@@ -135,6 +137,8 @@ exports.checkUser = async (req, res, next) => {
 
     if (!currentUser.verified) return sendUser(null, 200, req, res);
     //there is a user
+    //this is how to populate on doc and not query
+    User.populate(currentUser, { path: 'stories' });
     return sendUser(currentUser, 200, req, res);
   } catch (error) {
     return sendUser(null, 200, req, res);
@@ -147,7 +151,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   //2)check if password is correct
   if (!(await user.correctPassword(req.body.passwordCurrent, user.password)))
-    return next(new AppError('NO', 401));
+    return next(new AppError('No', 401));
   //3)if so , update password,
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;

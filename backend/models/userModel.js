@@ -65,6 +65,18 @@ const userSchema = new mongoose.Schema(
 userSchema.virtual('profileUrl').get(function () {
   return this.profilePhoto ? getPreSignedUrl(this.profilePhoto) : undefined;
 });
+userSchema.virtual('stories', {
+  ref: 'Story',
+  foreignField: 'author', //name of the field in the other model where the reference to THIS model is stored
+  localField: '_id', //the name of the foreign field on the current model (almost always '_id)
+});
+//QUERY MIDDLEWARE
+// userSchema.pre(/^find/, function (next) {
+//   // console.log('hello');
+//   this.populate('stories');
+//   // console.log('hello2');
+//   next();
+// });
 //DOCUMENT MIDDELWARE
 userSchema.pre('save', async function (next) {
   //only run if password is modified or user is newly created

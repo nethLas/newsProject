@@ -50,7 +50,7 @@ exports.upadteMe = catchAsync(async (req, res, next) => {
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
     runValidators: true,
-  });
+  }).populate('stories'); //very hacky
 
   res.status(200).json({
     status: 'success',

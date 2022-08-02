@@ -2,9 +2,11 @@ const express = require('express');
 
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
+const storyRouter = require('./storyRoutes');
 
 const router = express.Router();
 
+router.use('/:userId/stories', storyRouter);
 router.post('/signup', authController.signup, authController.sendActivateToken);
 router.route('/login').post(authController.login).get(authController.logout);
 
