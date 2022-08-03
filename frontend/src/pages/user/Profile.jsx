@@ -3,26 +3,28 @@ import { useSelector, useDispatch } from 'react-redux';
 import { FaPen, FaArrowRight } from 'react-icons/fa';
 import { Form, Stack, Image, Button, Row, Col } from 'react-bootstrap';
 import { useState } from 'react';
-import {
-  updateUser,
-  reset,
-  removeUserStory,
-} from '../../features/auth/authSlice';
+import { updateUser, reset } from '../../features/auth/authSlice';
 import {
   deleteStory,
+  getUserStories,
   reset as storyReset,
 } from '../../features/stories/storiesSlice';
 import { toast } from 'react-toastify';
 import { useEffect, useRef } from 'react';
 import Spinner from '../../components/Spinner';
+import { Spinner as SpinnerComp } from 'react-bootstrap';
 import StoryCard from '../../components/StoryCard';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import compress from '../../utils/compress';
+import userIcon from '../../assests/user.png';
 
 function Profile() {
   //implement chnage name and change password add all stroeis cards and stuff with photo
   const { user, isError, isSuccess, message, isLoading } = useSelector(
     (state) => state.auth
+  );
+  const { userStories, isLoadingUserStories } = useSelector(
+    (state) => state.stories
   );
   const [changeDetails, setChangeDetails] = useState(false);
   const [formData, setFormData] = useState({
@@ -39,11 +41,11 @@ function Profile() {
     if (isError) toast.success(message);
     dispatch(reset());
   }, [isError, isSuccess, user, message, dispatch]);
+
   useEffect(() => {
-    //this should only run when story is edited or removed
-    console.log('story reset');
-    dispatch(storyReset());
-  }, [user.stories, dispatch]);
+    if (userStories.length === 0) dispatch(getUserStories());
+    else dispatch(storyReset());
+  }, [userStories, dispatch]);
 
   const onChange = function (e) {
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -98,10 +100,9 @@ function Profile() {
     if (!window.confirm(`You sure you want to delete this story ${storyId}`))
       return;
     dispatch(deleteStory(storyId));
-    dispatch(removeUserStory(storyId));
   };
-  const onEdit = (storyId) => {
-    navigate(`/edit-story/${storyId}`);
+  const onEdit = (slug) => {
+    navigate(`/edit-story/${slug}`);
   };
 
   if (isLoading) return <Spinner />;
@@ -111,10 +112,7 @@ function Profile() {
         roundedCircle
         className="mx-auto"
         style={{ width: '125px', height: '125px', objectFit: 'cover' }}
-        src={
-          user.profileUrl ||
-          'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dXNlciUyMGF2YXRhcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60'
-        }
+        src={user.profileUrl || userIcon}
         alt="user"
       />
       <div className="d-flex  mb-4">
@@ -199,21 +197,23 @@ function Profile() {
       <hr />
       <div style={{ textAlign: 'left' }}>
         <span className="fs-4 fw-bold ">Your Stories</span>
-        {user.stories?.length > 0 ? (
-          user.stories.map((story) => {
-            return (
-              <StoryCard
-                story={story}
-                key={story.id}
-                onDelete={onDelete}
-                onEdit={onEdit}
-              />
-            );
-          })
-        ) : (
+        {userStories.length === 0 && !isLoadingUserStories && (
           <h5 className="fs-3 ">Your Don't have any stories yet</h5>
         )}
+        {isLoadingUserStories && (
+          <SpinnerComp animation="border" style={{ textAlign: 'center' }} />
+        )}
+        {userStories.length > 0 &&
+          userStories.map((story) => (
+            <StoryCard
+              story={story}
+              key={story.id}
+              onDelete={onDelete}
+              onEdit={onEdit}
+            />
+          ))}
       </div>
+
       <hr />
       <div className="d-flex justify-content-between mb-4">
         <span className="fs-4 fw-bold">Change Password</span>

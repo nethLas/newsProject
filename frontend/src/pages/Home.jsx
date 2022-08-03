@@ -22,7 +22,10 @@ function Home() {
   }, [isError, message, dispatch]);
 
   useEffect(() => {
-    if (stories.length === 0) dispatch(getStories());
+    if (stories.length === 0) {
+      dispatch(getStories());
+      console.log('home getting stories');
+    }
     return () => dispatch(reset());
   }, [stories, dispatch]);
 

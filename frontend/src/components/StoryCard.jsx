@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 const options = { year: 'numeric', month: 'long', day: 'numeric' };
 function StoryCard({ story, onEdit, onDelete }) {
   const navigate = useNavigate();
-
   return (
     <>
       <hr />
@@ -14,7 +13,7 @@ function StoryCard({ story, onEdit, onDelete }) {
           <FaPen
             style={{ fontSize: '1.25em' }}
             className="ms-auto"
-            onClick={() => onEdit(story.id)}
+            onClick={() => onEdit(story.slug)}
           />
           <FaTrash
             style={{ color: 'red', fontSize: '1.25em', marginLeft: '1rem' }}

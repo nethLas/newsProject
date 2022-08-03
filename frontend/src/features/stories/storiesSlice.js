@@ -4,8 +4,10 @@ import errorMessage from '../../utils/errorMessage';
 const initialState = {
   story: {},
   stories: [],
+  userStories: [],
   moreStories: true, //are there more stories to load
   isLoadingMore: false,
+  isLoadingUserStories: false,
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -42,12 +44,25 @@ export const getStory = createAsyncThunk(
   async function (slug, thunkAPI) {
     try {
       //if story already in context no need for trip to db
-      const found = thunkAPI
-        .getState()
-        .stories.stories.find((story) => story.slug === slug);
-      if (found) return found;
+      // const found = thunkAPI
+      //   .getState()
+      //   .stories.stories.find((story) => story.slug === slug);
+      // if (found) return found;
+      //NOT TRUE!!! WHAT IF STORIES CHANGED
       return await storiesService.getStory(slug);
     } catch (error) {
+      return errorMessage(error, thunkAPI);
+    }
+  }
+);
+export const getUserStories = createAsyncThunk(
+  'story/getUsers',
+  async function (_, thunkAPI) {
+    try {
+      const userId = thunkAPI.getState().auth.user.id;
+      return await storiesService.getUserStories(userId);
+    } catch (error) {
+      console.log(error);
       return errorMessage(error, thunkAPI);
     }
   }
@@ -99,6 +114,10 @@ const storiesSlice = createSlice({
     setLoading: (state, action) => {
       state.isLoading = action.payload;
     },
+    resetAfterLogout: (state) => {
+      state.userStories = [];
+      // state.isLoadingUserStories = false;
+    },
   },
 
   extraReducers: (builder) => {
@@ -110,6 +129,7 @@ const storiesSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.stories.unshift(action.payload);
+        state.userStories.unshift(action.payload);
         state.story = action.payload;
       })
       .addCase(createStory.rejected, (state, action) => {
@@ -128,6 +148,20 @@ const storiesSlice = createSlice({
       .addCase(getStory.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
+        console.log('rejected get story'); //doesnt wait for end of builder to fire
+        state.message = action.payload;
+      })
+      .addCase(getUserStories.pending, (state) => {
+        state.isLoadingUserStories = true;
+      })
+      .addCase(getUserStories.fulfilled, (state, action) => {
+        state.isLoadingUserStories = false;
+        state.isSuccess = true;
+        state.userStories = action.payload;
+      })
+      .addCase(getUserStories.rejected, (state, action) => {
+        state.isLoadingUserStories = false;
+        state.isError = true;
         console.log('rejected'); //doesnt wait for end of builder to fire
         state.message = action.payload;
       })
@@ -138,7 +172,9 @@ const storiesSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.stories = state.stories.filter((story) => {
-          console.log(story.id, action.payload);
+          return story.id !== action.payload;
+        });
+        state.userStories = state.userStories.filter((story) => {
           return story.id !== action.payload;
         });
       })
@@ -154,10 +190,17 @@ const storiesSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.story = action.payload;
-        const index = state.stories.findIndex(
+        //update stories in home
+        const storyIdx = state.stories.findIndex(
           (story) => story.id === action.payload.id
         );
-        if (index !== -1) state.stories[index] = action.payload;
+        if (storyIdx !== -1) state.stories[storyIdx] = action.payload;
+        //update user stories
+        const userStoryIdx = state.userStories.findIndex(
+          (story) => story.id === action.payload.id
+        );
+        if (userStoryIdx !== -1)
+          state.userStories[userStoryIdx] = action.payload;
       })
       .addCase(updateStory.rejected, (state, action) => {
         state.isLoading = false;
@@ -194,4 +237,4 @@ const storiesSlice = createSlice({
   },
 });
 export default storiesSlice.reducer;
-export const { reset, setLoading } = storiesSlice.actions;
+export const { reset, setLoading,resetAfterLogout } = storiesSlice.actions;

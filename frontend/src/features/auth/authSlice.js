@@ -5,7 +5,7 @@ const initialState = {
   user: null,
   isError: false,
   isSuccess: false,
-  isLoading: false,
+  isLoading: true,
   message: '',
 };
 export const signup = createAsyncThunk(
@@ -115,17 +115,6 @@ export const authSlice = createSlice({
       state.isError = false;
       state.isSuccess = false;
       state.message = '';
-    },
-    removeUserStory: (state, action) => {
-      state.user.stories = state.user.stories.filter(
-        (story) => story.id !== action.payload
-      );
-    },
-    updateUserStory: (state, action) => {
-      const index = state.user.stories.findIndex(
-        (story) => story.id === action.payload.id
-      );
-      if (index !== -1) state.user.stories[index] = action.payload;
     },
   },
   extraReducers: (builder) => {

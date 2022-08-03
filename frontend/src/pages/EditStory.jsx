@@ -1,16 +1,14 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Card, FloatingLabel, Row, Col, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import getLocation from '../utils/getLocation';
 import compress from '../utils/compress';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateStory } from '../features/stories/storiesSlice';
+import { updateStory, getStory } from '../features/stories/storiesSlice';
 import Spinner from '../components/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
 import { reset, setLoading } from '../features/stories/storiesSlice';
-import { updateUserStory } from '../features/auth/authSlice';
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 const defaultLocation = {
   address: '',
   description: '',
@@ -19,76 +17,97 @@ const defaultLocation = {
 };
 function EditStory() {
   // const geolocationEnabled = process.env.REACT_APP_GEOLOCATIONENABLED;
-  const {
-    isLoading,
-    isSuccess,
-    isError,
-    message,
-    story: editedStory,
-  } = useSelector((state) => state.stories);
-  const { id } = useParams();
+  const { isLoading, isSuccess, isError, message, story } = useSelector(
+    (state) => state.stories
+  );
+  const [sentEditedStory, setSentEditedStory] = useState(false);
+  const { slug } = useParams();
   const { user } = useSelector((state) => state.auth);
-  const story = useMemo(() => {
-    //i want to only run once
-    return user.stories?.find((story) => {
-      console.log('run');
-      return story.id === id;
-    });
-  }, [id, user.stories]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const geolocationEnabled = true;
   const [formData, setFormData] = useState({
-    title: story.title || '',
-    summary: story.summary || '',
-    text: story.text || '',
+    title: '',
+    summary: '',
+    text: '',
     images: {},
   });
-  const { title, summary, text } = formData;
-  const [sources, setSources] = useState(
-    story.sources?.length > 0 ? [...story.sources] : ['']
-  );
-  const [locations, setLocations] = useState(
-    story.locations?.length > 0
-      ? story.locations.map((location) => {
-          //need to create copies since state is immutable
-          if (geolocationEnabled)
-            return {
-              address: location.address,
-              description: location.description,
-            };
-          else {
-            return {
-              longitude: location.coordinates[0],
-              latitude: location.coordinates[1],
-              description: location.description,
-            };
-          }
-        })
-      : [{ ...defaultLocation }]
-  );
+  let { title, summary, text } = formData;
+  const [sources, setSources] = useState(['']);
+  const [locations, setLocations] = useState([{ ...defaultLocation }]);
 
   useEffect(() => {
-    if (!story) {
-      toast.error('Sorry we could not find that story');
-      navigate('/');
-    }
-  }, [user, id, story, navigate]);
+    dispatch(getStory(slug));
+  }, [dispatch, slug]);
 
   useEffect(() => {
-    if (isSuccess) {
-      toast.success('Successfully Edited Story');
-      dispatch(reset());
-      dispatch(updateUserStory(editedStory));
-      navigate('/profile');
-    }
     if (isError) {
       toast.error(message);
+      navigate('/'); //navigate doesnt end execution
       dispatch(reset());
-      navigate('/');
     }
-  }, [isSuccess, isError, dispatch, navigate, message, editedStory]);
+  }, [dispatch, isError, navigate, message]);
+
+  useEffect(() => {
+    if (isSuccess && !sentEditedStory) {
+      if (story.author.id !== user.id) {
+        navigate('/');
+        dispatch(reset());
+      }
+      setFormData({
+        title: story.title || '',
+        summary: story.summary || '',
+        text: story.text || '',
+        images: {},
+      });
+      setSources(story.sources?.length > 0 ? [...story.sources, ''] : ['']);
+      setLocations(
+        story.locations?.length > 0
+          ? story.locations
+              .map((location) =>
+                geolocationEnabled
+                  ? {
+                      address: location.address,
+                      description: location.description,
+                    }
+                  : {
+                      longitude: location.coordinates[0],
+                      latitude: location.coordinates[1],
+                      description: location.description,
+                    }
+              )
+              .concat({ ...defaultLocation })
+          : [{ ...defaultLocation }]
+      );
+      dispatch(reset());
+    }
+    if (isSuccess && sentEditedStory) {
+      toast.success('Successfully Edited Story');
+      dispatch(reset());
+      navigate('/profile');
+    }
+  }, [
+    isSuccess,
+    sentEditedStory,
+    dispatch,
+    story,
+    navigate,
+    geolocationEnabled,
+    user,
+  ]);
+  // useEffect(() => {
+  //   if (isSuccess) {
+  //     toast.success('Successfully Edited Story');
+  //     dispatch(reset());
+  //     navigate('/profile');
+  //   }
+  //   if (isError) {
+  //     toast.error(message);
+  //     dispatch(reset());
+  //     navigate('/');
+  //   }
+  // }, [isSuccess, isError, dispatch, navigate, message]);
 
   const onMutate = function (e) {
     //files
@@ -169,7 +188,8 @@ function EditStory() {
       for (var pair of form.entries()) {
         console.log(pair[0] + ', ' + pair[1]);
       }
-      dispatch(updateStory({ formData: form, storyId: id }));
+      dispatch(updateStory({ formData: form, storyId: story.id }));
+      setSentEditedStory(true);
     } catch (error) {
       dispatch(setLoading(false));
       toast.error(error.message);
@@ -300,7 +320,7 @@ function EditStory() {
         <Card.Header>Locations</Card.Header>
         <Card.Body>
           <Form.Group>
-            {locations.map((location, i) => {
+            {locations?.map((location, i) => {
               return (
                 <Row data-id={i} key={i} className="mb-1">
                   {geolocationEnabled && (

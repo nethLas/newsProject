@@ -88,7 +88,9 @@ exports.getAll = (Model, options) =>
       .limitFields()
       .paginate();
 
+    // const docs = await apiFeatures.query.lean();
     const docs = await apiFeatures.query.exec();
+    // const docs = await apiFeatures.query;
 
     res.status(200).json({
       status: 'success',

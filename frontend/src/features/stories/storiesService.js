@@ -22,6 +22,10 @@ const getStories = async ({ page = 1, limit = 2 }) => {
   );
   return response.data.data.data;
 };
+const getUserStories = async (userId) => {
+  const response = await axios.get(`/api/v1/users/${userId}/stories`);
+  return response.data.data.data;
+};
 const deleteStory = async function (storyId) {
   await axios.delete(`${API_URL}${storyId}`);
   return storyId;
@@ -39,6 +43,7 @@ const storiesService = {
   getStories,
   loadMoreStories,
   updateStory,
+  getUserStories,
 };
 
 export default storiesService;

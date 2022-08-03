@@ -24,7 +24,6 @@ const createSendToken = (user, statusCode, req, res) => {
   res.cookie('jwt', token, cookieOptions);
   //Remove password from output
   user.password = undefined;
-  User.populate(user, { path: 'stories' });
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -138,7 +137,6 @@ exports.checkUser = async (req, res, next) => {
     if (!currentUser.verified) return sendUser(null, 200, req, res);
     //there is a user
     //this is how to populate on doc and not query
-    User.populate(currentUser, { path: 'stories' });
     return sendUser(currentUser, 200, req, res);
   } catch (error) {
     return sendUser(null, 200, req, res);

@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Link, NavLink } from 'react-router-dom';
 import { logout, reset } from '../features/auth/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { resetAfterLogout } from '../features/stories/storiesSlice';
 
 function Navbar() {
   const { user } = useSelector((state) => state.auth);
@@ -12,6 +13,7 @@ function Navbar() {
   //this is terrible doesnt do anything
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(resetAfterLogout());
     dispatch(reset());
     navigate('/');
   };

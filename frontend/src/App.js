@@ -17,10 +17,11 @@ import ActivateUser from './pages/user/ActivateUser';
 import CreateStory from './pages/CreateStory';
 import Story from './pages/Story';
 import EditStory from './pages/EditStory';
+import Spinner from './components/Spinner';
 
 function App() {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { user, isLoading } = useSelector((state) => state.auth);
   useEffect(() => {
     dispatch(checkUser());
   }, [dispatch]);
@@ -38,8 +39,8 @@ function App() {
             <Route path="/create-story" element={<PrivateRoute />}>
               <Route path="/create-story" element={<CreateStory />} />
             </Route>
-            <Route path="/edit-story/:id" element={<PrivateRoute />}>
-              <Route path="/edit-story/:id" element={<EditStory />} />
+            <Route path="/edit-story/:slug" element={<PrivateRoute />}>
+              <Route path="/edit-story/:slug" element={<EditStory />} />
             </Route>
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
