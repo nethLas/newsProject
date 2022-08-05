@@ -40,6 +40,17 @@ const storySchema = new mongoose.Schema(
       type: Date,
       default: Date.now(),
     },
+    ratingsAverage: {
+      type: Number,
+      default: 0,
+      min: [1, 'Rating must be above 1.0'],
+      max: [5, 'Rating must be below 5.0'],
+      // set: (val) => Math.round(val * 10) / 10,
+    },
+    ratingsQuantity: {
+      type: Number,
+      default: 0,
+    },
     sources: [
       {
         type: String,
@@ -78,6 +89,7 @@ storySchema.virtual('imageUrls').get(function () {
     : undefined;
 });
 storySchema.pre(/^find/, function (next) {
+  //might change this
   //cost about 100ms
   this.populate({
     path: 'author',

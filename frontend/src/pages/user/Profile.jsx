@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { FaPen, FaArrowRight } from 'react-icons/fa';
-import { Form, Stack, Image, Button, Row, Col } from 'react-bootstrap';
+import { Form, Stack, Image, Button, Row, Col, Alert } from 'react-bootstrap';
 import { useState } from 'react';
 import { updateUser, reset } from '../../features/auth/authSlice';
 import {
@@ -183,6 +183,7 @@ function Profile() {
           </Col>
         </Form.Group>
       </Form>
+
       <Button
         as={Link}
         to="/create-story"

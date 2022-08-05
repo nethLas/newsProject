@@ -3,6 +3,8 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const userRouter = require('./routes/userRoutes');
 const storyRouter = require('./routes/storyRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
+const commentRouter = require('./routes/commentRoutes');
 const globalErrorHandler = require('./controllers/errorController');
 // const upload = require('./utils/uploadPhoto');
 
@@ -25,6 +27,9 @@ app.use(cookieParser());
 // });
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/stories', storyRouter);
+app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/comments', commentRouter);
+
 app.all('*', (req, res, next) => {
   console.log('not found');
   res.status(400).send(`can't find ${req.originalUrl}`);

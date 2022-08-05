@@ -3,8 +3,13 @@ const express = require('express');
 const storyController = require('../controllers/storyController');
 const authController = require('../controllers/authController');
 
+const reviewRouter = require('./reviewRoutes');
+const commentRouter = require('./commentRoutes');
+
 const router = express.Router({ mergeParams: true });
 
+router.use('/:storyId/reviews', reviewRouter);
+router.use('/:storyId/comments', commentRouter);
 router
   .route('/')
   .post(

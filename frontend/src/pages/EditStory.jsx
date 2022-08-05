@@ -8,7 +8,6 @@ import { updateStory, getStory } from '../features/stories/storiesSlice';
 import Spinner from '../components/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
 import { reset, setLoading } from '../features/stories/storiesSlice';
-import { useCallback } from 'react';
 const defaultLocation = {
   address: '',
   description: '',
@@ -96,18 +95,6 @@ function EditStory() {
     geolocationEnabled,
     user,
   ]);
-  // useEffect(() => {
-  //   if (isSuccess) {
-  //     toast.success('Successfully Edited Story');
-  //     dispatch(reset());
-  //     navigate('/profile');
-  //   }
-  //   if (isError) {
-  //     toast.error(message);
-  //     dispatch(reset());
-  //     navigate('/');
-  //   }
-  // }, [isSuccess, isError, dispatch, navigate, message]);
 
   const onMutate = function (e) {
     //files
@@ -386,7 +373,7 @@ function EditStory() {
       <Form.Group className="mb-3" style={{ textAlign: 'left' }}>
         <Form.Label className="fw-bold">Images</Form.Label>
         <p className="text-muted">The first image will be the cover (max 6).</p>
-        <p className="text-muted">
+        <p className="text-muted ">
           If you don't choose new images the previous ones will remain
         </p>
         <Form.Control

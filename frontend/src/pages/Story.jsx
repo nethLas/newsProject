@@ -1,6 +1,13 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Carousel, Card, ListGroup, Image, Stack } from 'react-bootstrap';
+import {
+  Carousel,
+  Card,
+  ListGroup,
+  Image,
+  Stack,
+  Alert,
+} from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useSelector, useDispatch } from 'react-redux';
 import { getStory } from '../features/stories/storiesSlice';
@@ -8,7 +15,9 @@ import Spinner from '../components/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import * as L from 'leaflet';
-import { reset, setLoading } from '../features/stories/storiesSlice';
+import { reset, resetAfterExit } from '../features/stories/storiesSlice';
+import reactStringReplace from 'react-string-replace';
+import ReviewForm from '../components/ReviewForm';
 
 const options = {
   year: 'numeric',
@@ -18,17 +27,26 @@ const options = {
 };
 
 function Story() {
-  const { story, isLoading, isError } = useSelector((state) => state.stories);
+  const { story, isLoading, isError, isSuccess } = useSelector(
+    (state) => state.stories
+  );
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { slug } = useParams();
+
   useEffect(() => {
     if (isError) {
       navigate('/'); //navigate doesnt end execution
-    } else dispatch(getStory(slug));
+    } else {
+      dispatch(getStory(slug));
+    }
     return () => dispatch(reset());
   }, [dispatch, isError, slug, navigate]);
-
+  useEffect(() => {
+    return () => {
+      dispatch(resetAfterExit());
+    };
+  }, []);
   if (isLoading || Object.keys(story).length === 0) return <Spinner />;
   return (
     <div style={{ textAlign: 'left' }}>
@@ -72,7 +90,20 @@ function Story() {
       </Stack>
       <hr />
       <div style={{ whiteSpace: 'pre-wrap' }} className="fs-4">
-        {story.text}
+        {reactStringReplace(story.text, /"(.*?)"/g, (match, i) =>
+          match.length > 50 ? ( //i think that length is a real quote and not a figurative speech
+            <Alert
+              role="note"
+              style={{ borderLeft: '3px solid blue', fontStyle: 'italic' }}
+              variant="transparent"
+              key={i}
+            >
+              {match}
+            </Alert>
+          ) : (
+            match
+          )
+        )}
       </div>
       <hr />
       <Card>
@@ -111,6 +142,7 @@ function Story() {
           </MapContainer>
         </div>
       )}
+      {Object.keys(story).length > 0 && <ReviewForm storyId={story.id} />}
     </div>
   );
 }

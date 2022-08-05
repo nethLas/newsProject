@@ -1,7 +1,8 @@
 import React from 'react';
-import { Stack, Image } from 'react-bootstrap';
+import { Stack, Image, Badge } from 'react-bootstrap';
 import { FaTrash, FaPen } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import StoryBadge from './StoryBadge';
 const options = { year: 'numeric', month: 'long', day: 'numeric' };
 function StoryCard({ story, onEdit, onDelete }) {
   const navigate = useNavigate();
@@ -33,6 +34,12 @@ function StoryCard({ story, onEdit, onDelete }) {
           <h3 className="fw-bold">{story.title}</h3>
           {story.summary && (
             <p className="d-none d-md-block">{story.summary}</p>
+          )}
+          {story.ratingsAverage > 0 && story.ratingsQuantity > 0 && (
+            <StoryBadge
+              numRatings={story.ratingsQuantity}
+              rating={story.ratingsAverage}
+            />
           )}
           <span className="text-muted">
             {new Date(story.createdAt).toLocaleDateString('en-US', options)} |{' '}

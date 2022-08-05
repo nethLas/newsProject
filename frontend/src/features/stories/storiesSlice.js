@@ -118,6 +118,9 @@ const storiesSlice = createSlice({
       state.userStories = [];
       // state.isLoadingUserStories = false;
     },
+    resetAfterExit: (state) => {
+      state.story = {};
+    },
   },
 
   extraReducers: (builder) => {
@@ -237,4 +240,5 @@ const storiesSlice = createSlice({
   },
 });
 export default storiesSlice.reducer;
-export const { reset, setLoading,resetAfterLogout } = storiesSlice.actions;
+export const { reset, setLoading, resetAfterLogout, resetAfterExit } =
+  storiesSlice.actions;
