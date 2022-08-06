@@ -13,7 +13,6 @@ import { toast } from 'react-toastify';
 function ReviewForm({ storyId }) {
   const [current, setCurrent] = useState('');
   const [sent, setSent] = useState(false);
-  const [selected, setSelected] = useState();
   const { story, isLoading, isError, isSuccess } = useSelector(
     (state) => state.stories
   );
@@ -33,12 +32,12 @@ function ReviewForm({ storyId }) {
   useEffect(() => {
     dispatch(getReview(storyId));
   }, [storyId, dispatch]);
+
   useEffect(() => {
     return () => {
-      console.log('stupid');
       dispatch(resetAfterExit());
     };
-  }, []);
+  }, [dispatch]);
   const onClick = function (e) {
     console.log('click');
     if (story.author.id === user.id) {
@@ -50,7 +49,7 @@ function ReviewForm({ storyId }) {
     setSent(true);
   };
 
-  if (!user) return;
+  if (user === null) return;
   if (revLoading && !hasRev && !sent)
     //dont want so show spinner between submits
     return (
@@ -60,8 +59,12 @@ function ReviewForm({ storyId }) {
     );
   return (
     <div style={{ textAlign: 'center' }}>
-      <Card className="rounded-pill d-inline-flex">
-        <Card.Title>Rate this Story's fiabilty</Card.Title>
+      {/*A little weird but doesnt really matter */}
+      <Card
+        style={{ backgroundColor: 'transparent', borderColor: 'transparent' }}
+        className="rounded-pill d-inline-flex"
+      >
+        <Card.Title className="fs-4">Rate this Story's fiabilty</Card.Title>
         <Card.Body>
           <FormButton
             variant="danger"

@@ -8,6 +8,7 @@ import {
   Stack,
   Alert,
 } from 'react-bootstrap';
+import StoryBadge from '../components/StoryBadge';
 import { toast } from 'react-toastify';
 import { useSelector, useDispatch } from 'react-redux';
 import { getStory } from '../features/stories/storiesSlice';
@@ -18,6 +19,7 @@ import * as L from 'leaflet';
 import { reset, resetAfterExit } from '../features/stories/storiesSlice';
 import reactStringReplace from 'react-string-replace';
 import ReviewForm from '../components/ReviewForm';
+import CommentsCanvas from '../components/CommentsCanvas';
 
 const options = {
   year: 'numeric',
@@ -30,6 +32,7 @@ function Story() {
   const { story, isLoading, isError, isSuccess } = useSelector(
     (state) => state.stories
   );
+  const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { slug } = useParams();
@@ -46,12 +49,18 @@ function Story() {
     return () => {
       dispatch(resetAfterExit());
     };
-  }, []);
+  }, [dispatch]);
   if (isLoading || Object.keys(story).length === 0) return <Spinner />;
   return (
     <div style={{ textAlign: 'left' }}>
       <h2 className="fw-bold">{story.title}</h2>
       <p className="text-muted fs-3">{story.summary}</p>
+      {story.ratingsQuantity > 0 && (
+        <StoryBadge
+          rating={story.ratingsAverage}
+          numRatings={story.ratingsQuantity}
+        />
+      )}
       <hr />
 
       <Carousel
@@ -142,7 +151,8 @@ function Story() {
           </MapContainer>
         </div>
       )}
-      {Object.keys(story).length > 0 && <ReviewForm storyId={story.id} />}
+      {Object.keys(story).length > 0 && <CommentsCanvas storyId={story.id} />}
+      {user !== null && <ReviewForm storyId={story.id} />}
     </div>
   );
 }

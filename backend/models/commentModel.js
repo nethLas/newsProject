@@ -11,13 +11,13 @@ const commentSchema = new mongoose.Schema(
     story: {
       type: mongoose.Schema.ObjectId,
       ref: 'Story',
-      required: [true, 'Review must belong to a Story.'],
+      required: [true, 'Comment must belong to a Story.'],
       immutable: true,
     },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
-      required: [true, 'Review must belong to a user.'],
+      required: [true, 'Comment must belong to a user.'],
       immutable: true,
     },
   },
@@ -26,9 +26,11 @@ const commentSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+// commentSchema.index({story:1});
 commentSchema.index({ story: 1, user: 1 });
 commentSchema.pre(/^find/, function (next) {
-  this.populate({ path: 'user', select: 'name photo' });
+  this.populate({ path: 'user', select: 'name profilePhoto' });
   next();
 });
 const Comment = mongoose.model('Comment', commentSchema);

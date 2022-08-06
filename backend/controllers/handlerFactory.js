@@ -5,7 +5,6 @@ const APIFeatures = require('../utils/apiFeatures');
 exports.isOwner = (Model, idField) =>
   catchAsync(async (req, _, next) => {
     const doc = await Model.findById(req.params.id).exec(); //exec is to get a "better" stack trace;
-    console.log(doc);
     if (
       //depends if there was populate
       req.user.id !== doc[idField].id &&
