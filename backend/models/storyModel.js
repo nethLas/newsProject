@@ -76,6 +76,7 @@ const storySchema = new mongoose.Schema(
   }
 );
 storySchema.index({ slug: 1 });
+//added location index in mongo
 storySchema.pre('save', function (next) {
   this.slug = slugify(this.title, { lower: true });
   next();

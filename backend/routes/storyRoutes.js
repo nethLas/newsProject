@@ -10,6 +10,9 @@ const router = express.Router({ mergeParams: true });
 
 router.use('/:storyId/reviews', reviewRouter);
 router.use('/:storyId/comments', commentRouter);
+
+router.route('/distances/:latlng/unit/:unit').get(storyController.getDistances);
+
 router
   .route('/')
   .post(

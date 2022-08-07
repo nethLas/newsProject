@@ -30,6 +30,12 @@ const deleteStory = async function (storyId) {
   await axios.delete(`${API_URL}${storyId}`);
   return storyId;
 };
+const getNearYou = async function (coordinates) {
+  const response = await axios.get(
+    `${API_URL}distances/${coordinates}/unit/km`
+  );
+  return response.data.data.data;
+};
 const loadMoreStories = async ({ skip, limit = 10 }) => {
   const response = await axios.get(
     `${API_URL}?sort=-createdAt&skip=${skip}&limit=${limit}`
@@ -44,6 +50,7 @@ const storiesService = {
   loadMoreStories,
   updateStory,
   getUserStories,
+  getNearYou,
 };
 
 export default storiesService;

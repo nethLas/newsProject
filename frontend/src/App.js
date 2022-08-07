@@ -18,6 +18,7 @@ import CreateStory from './pages/CreateStory';
 import Story from './pages/Story';
 import EditStory from './pages/EditStory';
 import Spinner from './components/Spinner';
+import NearMe from './pages/NearMe';
 
 function App() {
   const dispatch = useDispatch();
@@ -47,6 +48,7 @@ function App() {
             <Route path="/activate-user/:token" element={<ActivateUser />} />
             <Route path="/story/:slug" element={<Story />} />
             <Route path="/" element={<Home />} />
+            <Route path="/near-me" element={<NearMe />} />
           </Routes>
         </div>
       </Router>

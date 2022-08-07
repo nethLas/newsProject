@@ -11,7 +11,6 @@ function StoryBadge({ rating, numRatings }) {
       <span className="text-muted fs-8">
         As ranked by {numRatings} user{numRatings > 1 ? 's' : ''}
       </span>
-      <br />
     </div>
   );
 }

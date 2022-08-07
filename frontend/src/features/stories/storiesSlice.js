@@ -5,9 +5,11 @@ const initialState = {
   story: {},
   stories: [],
   userStories: [],
+  nearMeStories: [],
   moreStories: true, //are there more stories to load
   isLoadingMore: false,
   isLoadingUserStories: false,
+  isLoadingNearMeStories: false,
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -83,6 +85,18 @@ export const getStories = createAsyncThunk(
   async function (options, thunkAPI) {
     try {
       return await storiesService.getStories(options ? options : {});
+    } catch (error) {
+      return errorMessage(error, thunkAPI);
+    }
+  }
+);
+export const getStoriesNearMe = createAsyncThunk(
+  'stories/getNearMe',
+  async function (coordinates, thunkAPI) {
+    try {
+      return await storiesService.getNearYou(
+        `${coordinates.longitude},${coordinates.latitude}`
+      );
     } catch (error) {
       return errorMessage(error, thunkAPI);
     }
@@ -164,6 +178,20 @@ const storiesSlice = createSlice({
       })
       .addCase(getUserStories.rejected, (state, action) => {
         state.isLoadingUserStories = false;
+        state.isError = true;
+        console.log('rejected'); //doesnt wait for end of builder to fire
+        state.message = action.payload;
+      })
+      .addCase(getStoriesNearMe.pending, (state) => {
+        state.isLoadingNearMeStories = true;
+      })
+      .addCase(getStoriesNearMe.fulfilled, (state, action) => {
+        state.isLoadingNearMeStories = false;
+        state.isSuccess = true;
+        state.nearMeStories = action.payload;
+      })
+      .addCase(getStoriesNearMe.rejected, (state, action) => {
+        state.isLoadingNearMeStories = false;
         state.isError = true;
         console.log('rejected'); //doesnt wait for end of builder to fire
         state.message = action.payload;

@@ -35,16 +35,25 @@ function StoryCard({ story, onEdit, onDelete }) {
           {story.summary && (
             <p className="d-none d-md-block">{story.summary}</p>
           )}
+          <span className="text-muted">
+            {new Date(story.createdAt).toLocaleDateString('en-US', options)} |{' '}
+            {story?.author?.name}
+            <br />
+          </span>
           {story.ratingsAverage > 0 && story.ratingsQuantity > 0 && (
             <StoryBadge
               numRatings={story.ratingsQuantity}
               rating={story.ratingsAverage}
             />
           )}
-          <span className="text-muted">
-            {new Date(story.createdAt).toLocaleDateString('en-US', options)} |{' '}
-            {story?.author?.name}
-          </span>
+          {story.distance && (
+            <>
+              <br />
+              <label className="fs-6">
+                {story.distance.toFixed(1)} km from you
+              </label>
+            </>
+          )}
         </div>
 
         <div
