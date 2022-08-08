@@ -6,10 +6,11 @@ const initialState = {
   stories: [],
   userStories: [],
   nearMeStories: [],
+  searchResults: [],
   moreStories: true, //are there more stories to load
   isLoadingMore: false,
   isLoadingUserStories: false,
-  isLoadingNearMeStories: false,
+  noneFound: false,
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -69,6 +70,18 @@ export const getUserStories = createAsyncThunk(
     }
   }
 );
+export const getSearchStories = createAsyncThunk(
+  'story/getSearch',
+  async function (terms, thunkAPI) {
+    try {
+      const term = terms.split(' ').join(',');
+      return await storiesService.getSearchStories(term);
+    } catch (error) {
+      console.log(error);
+      return errorMessage(error, thunkAPI);
+    }
+  }
+);
 export const deleteStory = createAsyncThunk(
   'story/delete',
   async function (storyId, thunkAPI) {
@@ -95,7 +108,7 @@ export const getStoriesNearMe = createAsyncThunk(
   async function (coordinates, thunkAPI) {
     try {
       return await storiesService.getNearYou(
-        `${coordinates.longitude},${coordinates.latitude}`
+        `${coordinates.latitude},${coordinates.longitude}`
       );
     } catch (error) {
       return errorMessage(error, thunkAPI);
@@ -173,7 +186,6 @@ const storiesSlice = createSlice({
       })
       .addCase(getUserStories.fulfilled, (state, action) => {
         state.isLoadingUserStories = false;
-        state.isSuccess = true;
         state.userStories = action.payload;
       })
       .addCase(getUserStories.rejected, (state, action) => {
@@ -183,15 +195,30 @@ const storiesSlice = createSlice({
         state.message = action.payload;
       })
       .addCase(getStoriesNearMe.pending, (state) => {
-        state.isLoadingNearMeStories = true;
+        state.isLoading = true;
       })
       .addCase(getStoriesNearMe.fulfilled, (state, action) => {
-        state.isLoadingNearMeStories = false;
+        state.isLoading = false;
         state.isSuccess = true;
         state.nearMeStories = action.payload;
       })
       .addCase(getStoriesNearMe.rejected, (state, action) => {
-        state.isLoadingNearMeStories = false;
+        state.isLoading = false;
+        state.isError = true;
+        console.log('rejected'); //doesnt wait for end of builder to fire
+        state.message = action.payload;
+      })
+      .addCase(getSearchStories.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getSearchStories.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.searchResults = action.payload;
+        state.noneFound = state.searchResults?.length ? false : true;
+      })
+      .addCase(getSearchStories.rejected, (state, action) => {
+        state.isLoading = false;
         state.isError = true;
         console.log('rejected'); //doesnt wait for end of builder to fire
         state.message = action.payload;
@@ -201,7 +228,7 @@ const storiesSlice = createSlice({
       })
       .addCase(deleteStory.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isSuccess = true;
+        // state.isSuccess = true;
         state.stories = state.stories.filter((story) => {
           return story.id !== action.payload;
         });

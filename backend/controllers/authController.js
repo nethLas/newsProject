@@ -176,9 +176,10 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       .status(200)
       .json({ status: 'success', message: 'Token sent to email!' });
   } catch (error) {
+    console.log(error);
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
-    await user.save();
+    await user.save({ validateModifiedOnly: true });
     return next(new AppError('There was an error sending the email', 500));
   }
 });

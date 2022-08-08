@@ -6,9 +6,7 @@ import { getStoriesNearMe, reset } from '../features/stories/storiesSlice';
 import { useNavigate } from 'react-router-dom';
 function NearMe() {
   const [geoEnabled, setGeoEnabled] = useState(false);
-  const { nearMeStories, isLoadingNearMeStories } = useSelector(
-    (state) => state.stories
-  );
+  const { nearMeStories, isLoading } = useSelector((state) => state.stories);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   useEffect(() => {
@@ -35,11 +33,10 @@ function NearMe() {
     ));
   };
   if (!geoEnabled) return;
-  if (isLoadingNearMeStories || nearMeStories.length === 0)
-    return createPlaceholders(5);
+  if (isLoading || nearMeStories.length === 0) return createPlaceholders(5);
   return (
     <>
-      <h1>Top 10 Stories closest to you</h1>
+      <h1 style={{ color: 'darkslategray' }}>Top 10 Stories closest to you</h1>
       {nearMeStories.map((story, i) => (
         <StoryCard story={story} key={i} />
       ))}

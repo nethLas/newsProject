@@ -3,6 +3,8 @@ const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const storyRouter = require('./storyRoutes');
+// const handlerFactory = require('../controllers/handlerFactory');
+// const User = require('../models/userModel');
 
 const router = express.Router();
 
@@ -35,4 +37,5 @@ router.patch(
   authController.protect,
   authController.updatePassword
 );
+// router.route('/:id').delete(handlerFactory.deleteOne(User)); for testing cascading
 module.exports = router;

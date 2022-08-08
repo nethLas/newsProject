@@ -23,7 +23,7 @@ function CommentForm({ storyId }) {
             style={{ width: '45px', height: '45px', objectFit: 'cover' }}
             src={
               user.profileUrl ||
-              'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dXNlciUyMGF2YXRhcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60'
+              'https://miro.medium.com/fit/c/48/48/1*dmbNkD5D-u45r44go_cf0g.png'
             }
             alt="user"
             className="me-2"

@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const Review = require('./reviewModel');
+const Comment = require('./commentModel');
+const Story = require('./storyModel');
 const getPreSignedUrl = require('../utils/getPreSignedUrl');
 
 const userSchema = new mongoose.Schema(
@@ -80,7 +83,10 @@ userSchema.virtual('stories', {
 //DOCUMENT MIDDELWARE
 userSchema.pre('save', async function (next) {
   //only run if password is modified or user is newly created
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password')) {
+    console.log('skipped');
+    return next();
+  }
   //hash with cost 12
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
@@ -88,7 +94,15 @@ userSchema.pre('save', async function (next) {
   this.passwordChangedAt = Date.now() - 1000;
   next();
 });
-
+// eslint-disable-next-line prefer-arrow-callback
+userSchema.post('findOneAndDelete', async function (doc, next) {
+  await Promise.all([
+    Review.deleteMany({ user: doc.id }).exec(),
+    Comment.deleteMany({ user: doc.id }).exec(),
+    Story.deleteMany({ author: doc.id }).exec(),
+  ]);
+  next();
+});
 // userSchema.pre('save', function (next) {
 //   if (!this.isModified('password') || this.isNew) return next();
 //   this.passwordChangedAt = Date.now();

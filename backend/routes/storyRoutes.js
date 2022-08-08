@@ -12,7 +12,7 @@ router.use('/:storyId/reviews', reviewRouter);
 router.use('/:storyId/comments', commentRouter);
 
 router.route('/distances/:latlng/unit/:unit').get(storyController.getDistances);
-
+router.route('/search/:term').get(storyController.searchStories);
 router
   .route('/')
   .post(

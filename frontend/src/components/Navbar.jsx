@@ -27,8 +27,8 @@ function Navbar() {
           <Nav.Link to="/near-me" as={NavLink}>
             Near me
           </Nav.Link>
-          <Nav.Link to="/about" as={NavLink}>
-            About
+          <Nav.Link to="/search" as={NavLink}>
+            Search
           </Nav.Link>
         </Nav>
         {user ? (

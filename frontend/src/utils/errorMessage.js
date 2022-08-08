@@ -3,5 +3,6 @@ export default function errorMessage(error, thunkAPI) {
     (error.response && error.response.data && error.response.data.message) ||
     error.message ||
     error.toString();
+  console.log(message);
   return thunkAPI.rejectWithValue(message);
 }

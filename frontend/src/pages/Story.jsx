@@ -52,7 +52,7 @@ function Story() {
   }, [dispatch]);
   if (isLoading || Object.keys(story).length === 0) return <Spinner />;
   return (
-    <div style={{ textAlign: 'left' }}>
+    <div style={{ textAlign: 'left' }} className="mb-2">
       <h2 className="fw-bold">{story.title}</h2>
       <p className="text-muted fs-3">{story.summary}</p>
       {story.ratingsQuantity > 0 && (
@@ -88,7 +88,7 @@ function Story() {
             style={{ width: '50px', height: '50px', objectFit: 'cover' }}
             src={
               story.author.profileUrl ||
-              'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8dXNlciUyMGF2YXRhcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60'
+              'https://miro.medium.com/fit/c/48/48/1*dmbNkD5D-u45r44go_cf0g.png'
             }
             alt="user"
             className="me-2"

@@ -28,8 +28,9 @@ function StoryCard({ story, onEdit, onDelete }) {
         style={{ textAlign: 'left', alignItems: 'center' }}
       >
         <div
-          className="me-auto "
+          className=""
           onClick={() => navigate(`/story/${story.slug}`)}
+          style={{ overflow: 'clip' }}
         >
           <h3 className="fw-bold">{story.title}</h3>
           {story.summary && (

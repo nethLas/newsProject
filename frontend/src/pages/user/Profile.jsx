@@ -43,9 +43,8 @@ function Profile() {
   }, [isError, isSuccess, user, message, dispatch]);
 
   useEffect(() => {
-    if (userStories.length === 0) dispatch(getUserStories());
-    else dispatch(storyReset());
-  }, [userStories, dispatch]);
+    dispatch(getUserStories());
+  }, [dispatch]);
 
   const onChange = function (e) {
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));

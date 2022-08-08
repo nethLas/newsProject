@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Story = require('./storyModel');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -43,12 +42,14 @@ reviewSchema.statics.calcAverageRatings = async function (storyId) {
     },
   ]);
   if (stats.length > 0) {
-    await Story.findByIdAndUpdate(storyId, {
+    await mongoose.model('Story').findByIdAndUpdate(storyId, {
+      //very hacky
       ratingsAverage: stats[0].avgRating,
       ratingsQuantity: stats[0].nRatings,
     });
   } else {
-    await Story.findByIdAndUpdate(storyId, {
+    await mongoose.model('Story').findByIdAndUpdate(storyId, {
+      //very hacky but avoid circular dependencies
       ratingsAverage: 0,
       ratingsQuantity: 0,
     });

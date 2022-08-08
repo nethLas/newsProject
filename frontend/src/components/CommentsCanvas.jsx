@@ -31,11 +31,7 @@ function CommentsCanvas({ storyId }) {
 
   return (
     <>
-      <Button
-        variant="light"
-        className="w-100 rounded-pill"
-        onClick={handleShow}
-      >
+      <Button className="w-100 rounded-pill" onClick={handleShow}>
         Discussion
       </Button>
 

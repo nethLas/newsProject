@@ -6,6 +6,7 @@ const signup = async (userData) => {
 };
 const login = async (userData) => {
   const response = await axios.post(`${API_URL}login`, userData);
+  console.log(response);
   return response.data.data.user;
 };
 const checkUser = async () => {
@@ -14,6 +15,7 @@ const checkUser = async () => {
 };
 const logout = async () => {
   const response = await axios.get(`${API_URL}login`);
+
   return response.data.status;
 };
 const updateUser = async (userData) => {

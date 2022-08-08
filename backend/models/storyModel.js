@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
+const Review = require('./reviewModel');
+const Comment = require('./commentModel');
 const getPreSignedUrl = require('../utils/getPreSignedUrl');
 
 const storySchema = new mongoose.Schema(
@@ -42,7 +44,7 @@ const storySchema = new mongoose.Schema(
     },
     ratingsAverage: {
       type: Number,
-      default: 0,
+      // default: 0,
       min: [1, 'Rating must be above 1.0'],
       max: [5, 'Rating must be below 5.0'],
       // set: (val) => Math.round(val * 10) / 10,
@@ -75,6 +77,7 @@ const storySchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+storySchema.index({ title: 'text', text: 'text' });
 storySchema.index({ slug: 1 });
 //added location index in mongo
 storySchema.pre('save', function (next) {
@@ -98,8 +101,14 @@ storySchema.pre(/^find/, function (next) {
   });
   next();
 });
-// storySchema.post(/^find/, function () {
+// eslint-disable-next-line prefer-arrow-callback
+storySchema.post('findOneAndDelete', async function (doc) {
+  await Promise.all([
+    Comment.deleteMany({ story: doc.id }).exec(),
+    Review.deleteMany({ story: doc.id }).exec(),
+  ]);
+  // next();
+});
 
-// });
 const Story = mongoose.model('Story', storySchema);
 module.exports = Story;

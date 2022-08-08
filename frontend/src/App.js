@@ -19,6 +19,7 @@ import Story from './pages/Story';
 import EditStory from './pages/EditStory';
 import Spinner from './components/Spinner';
 import NearMe from './pages/NearMe';
+import Search from './pages/Search';
 
 function App() {
   const dispatch = useDispatch();
@@ -49,6 +50,7 @@ function App() {
             <Route path="/story/:slug" element={<Story />} />
             <Route path="/" element={<Home />} />
             <Route path="/near-me" element={<NearMe />} />
+            <Route path="/search" element={<Search />} />
           </Routes>
         </div>
       </Router>

@@ -32,7 +32,7 @@ function Login() {
     if (user) {
       navigate('/');
     }
-    dispatch(reset());
+    return () => dispatch(reset());
   }, [isError, isSuccess, user, message, navigate, dispatch]);
 
   const onChange = (e) => {

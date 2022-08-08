@@ -16,10 +16,14 @@ const getStory = async (slug) => {
     throw new Error("Uh oh, We couldn't find that story");
   return response.data.data.data[0];
 };
-const getStories = async ({ page = 1, limit = 2 }) => {
+const getStories = async ({ page = 1, limit = 10 }) => {
   const response = await axios.get(
     `${API_URL}?sort=-createdAt&page=${page}&limit=${limit}`
   );
+  return response.data.data.data;
+};
+const getSearchStories = async (term) => {
+  const response = await axios.get(`${API_URL}search/${term}}`);
   return response.data.data.data;
 };
 const getUserStories = async (userId) => {
@@ -34,6 +38,7 @@ const getNearYou = async function (coordinates) {
   const response = await axios.get(
     `${API_URL}distances/${coordinates}/unit/km`
   );
+  console.log(coordinates);
   return response.data.data.data;
 };
 const loadMoreStories = async ({ skip, limit = 10 }) => {
@@ -51,6 +56,7 @@ const storiesService = {
   updateStory,
   getUserStories,
   getNearYou,
+  getSearchStories,
 };
 
 export default storiesService;

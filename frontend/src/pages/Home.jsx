@@ -30,7 +30,7 @@ function Home() {
   }, [stories, dispatch]);
 
   const getMoreStories = () => {
-    dispatch(loadMoreStories({ limit: 2 }));
+    dispatch(loadMoreStories({ limit: 10 }));
   };
   const createPlaceholders = (amount) => {
     return Array.from({ length: amount }).map((_, i) => (
@@ -40,7 +40,7 @@ function Home() {
 
   if (isLoading || stories.length === 0) return createPlaceholders(5);
   return (
-    <>
+    <div>
       {stories.map((story, i) => (
         <StoryCard story={story} key={i} />
       ))}
@@ -59,7 +59,7 @@ function Home() {
         </Button>
       )}
       {!moreStories && <p>No More Stories</p>}
-    </>
+    </div>
   );
 }
 

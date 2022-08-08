@@ -12,6 +12,7 @@ const allowefFields = [
   'summary',
   'imageCover',
   'images',
+  'author',
 ];
 exports.uploadStoryImages = upload.fields([
   { name: 'imageCover', maxCount: 1 },
@@ -88,6 +89,24 @@ exports.getDistances = catchAsync(async (req, res, next) => {
     path: 'author',
     select: 'name profilePhoto',
   });
+  res.status(200).json({
+    status: 'success',
+    results: docs.length,
+    data: { data: docs },
+  });
+});
+exports.searchStories = catchAsync(async (req, res, next) => {
+  const { term } = req.params;
+  const search = term.split(',').join(' ');
+  const docs = await Story.find(
+    { $text: { $search: search } },
+    { score: { $meta: 'textScore' } }
+  )
+    .sort({ score: { $meta: 'textScore' } })
+    .populate({
+      path: 'author',
+      select: 'name profilePhoto',
+    });
   res.status(200).json({
     status: 'success',
     results: docs.length,
