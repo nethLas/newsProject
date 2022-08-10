@@ -16,7 +16,7 @@ function Home() {
     useSelector((state) => state.stories);
   const dispatch = useDispatch();
   useEffect(() => {
-    console.log('from home');
+    // console.log('from home');
     if (isError) toast.error(message);
     return () => dispatch(reset());
   }, [isError, message, dispatch]);
@@ -24,7 +24,7 @@ function Home() {
   useEffect(() => {
     if (stories.length === 0) {
       dispatch(getStories());
-      console.log('home getting stories');
+      // console.log('home getting stories');
     }
     return () => dispatch(reset());
   }, [stories, dispatch]);

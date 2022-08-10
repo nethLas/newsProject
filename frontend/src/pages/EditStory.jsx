@@ -158,7 +158,7 @@ function EditStory() {
             })
           )
         );
-        console.log(`finished all compression in: ${Date.now() - start}`);
+        // console.log(`finished all compression in: ${Date.now() - start}`);
         //4 Assemble
         form.append('imageCover', images[0]);
         images.forEach(
@@ -172,15 +172,12 @@ function EditStory() {
         images: undefined,
       };
       form.append('data', JSON.stringify(data));
-      for (var pair of form.entries()) {
-        console.log(pair[0] + ', ' + pair[1]);
-      }
       dispatch(updateStory({ formData: form, storyId: story.id }));
       setSentEditedStory(true);
     } catch (error) {
       dispatch(setLoading(false));
       toast.error(error.message);
-      console.log(error);
+      // console.log(error);
     }
   };
   const checkSources = () => {

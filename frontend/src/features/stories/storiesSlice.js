@@ -65,7 +65,6 @@ export const getUserStories = createAsyncThunk(
       const userId = thunkAPI.getState().auth.user.id;
       return await storiesService.getUserStories(userId);
     } catch (error) {
-      console.log(error);
       return errorMessage(error, thunkAPI);
     }
   }
@@ -77,7 +76,6 @@ export const getSearchStories = createAsyncThunk(
       const term = terms.split(' ').join(',');
       return await storiesService.getSearchStories(term);
     } catch (error) {
-      console.log(error);
       return errorMessage(error, thunkAPI);
     }
   }
@@ -178,7 +176,7 @@ const storiesSlice = createSlice({
       .addCase(getStory.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        console.log('rejected get story'); //doesnt wait for end of builder to fire
+        // console.log('rejected get story'); //doesnt wait for end of builder to fire
         state.message = action.payload;
       })
       .addCase(getUserStories.pending, (state) => {
@@ -191,7 +189,7 @@ const storiesSlice = createSlice({
       .addCase(getUserStories.rejected, (state, action) => {
         state.isLoadingUserStories = false;
         state.isError = true;
-        console.log('rejected'); //doesnt wait for end of builder to fire
+        // console.log('rejected'); //doesnt wait for end of builder to fire
         state.message = action.payload;
       })
       .addCase(getStoriesNearMe.pending, (state) => {
@@ -205,7 +203,7 @@ const storiesSlice = createSlice({
       .addCase(getStoriesNearMe.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        console.log('rejected'); //doesnt wait for end of builder to fire
+        // console.log('rejected'); //doesnt wait for end of builder to fire
         state.message = action.payload;
       })
       .addCase(getSearchStories.pending, (state) => {
@@ -220,7 +218,7 @@ const storiesSlice = createSlice({
       .addCase(getSearchStories.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        console.log('rejected'); //doesnt wait for end of builder to fire
+        // console.log('rejected'); //doesnt wait for end of builder to fire
         state.message = action.payload;
       })
       .addCase(deleteStory.pending, (state) => {

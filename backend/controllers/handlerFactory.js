@@ -74,7 +74,6 @@ exports.updateOne = (Model, allowedFields) =>
 
 exports.getOne = (Model, populateOptions) =>
   catchAsync(async (req, res, next) => {
-    console.log(req.params.id);
     let query = Model.findById(req.params.id);
     if (populateOptions) query = query.populate(populateOptions);
     const doc = await query.exec();

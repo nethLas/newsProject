@@ -38,7 +38,6 @@ const getNearYou = async function (coordinates) {
   const response = await axios.get(
     `${API_URL}distances/${coordinates}/unit/km`
   );
-  console.log(coordinates);
   return response.data.data.data;
 };
 const loadMoreStories = async ({ skip, limit = 10 }) => {

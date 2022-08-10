@@ -184,7 +184,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 exports.resetPassword = catchAsync(async (req, res, next) => {
-  console.log(req.body);
   //1)get user based on token
   const hashedToken = crypto
     .createHash('sha256')
@@ -249,7 +248,6 @@ exports.activateAccount = catchAsync(async (req, res, next) => {
     .createHash('sha256')
     .update(req.params.token)
     .digest('hex');
-  console.log(hashedToken);
   const user = await User.findOne({
     verifyToken: hashedToken,
     verifyTokenExpires: { $gt: Date.now() },

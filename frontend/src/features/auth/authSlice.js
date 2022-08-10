@@ -12,7 +12,6 @@ export const signup = createAsyncThunk(
   'auth/signup',
   async function (user, thunkAPI) {
     try {
-      console.log('hello');
       return await authService.signup(user);
     } catch (error) {
       const message = 'Could not sign up please try again';
@@ -105,7 +104,6 @@ export const checkUser = createAsyncThunk(
   'auth/chekUser',
   async function (_, thunkAPI) {
     try {
-      console.log('checking...');
       return await authService.checkUser();
     } catch (error) {
       errorMessage(error, thunkAPI);

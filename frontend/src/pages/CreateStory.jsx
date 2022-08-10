@@ -103,7 +103,7 @@ function CreateStory() {
           })
         )
       );
-      console.log(`finished all compression in: ${Date.now() - start}`);
+      // console.log(`finished all compression in: ${Date.now() - start}`);
       //4 Assemble
       const form = new FormData();
       form.append('imageCover', images[0]);
@@ -117,9 +117,10 @@ function CreateStory() {
         images: undefined,
       };
       form.append('data', JSON.stringify(data));
-      for (var pair of form.entries()) {
-        console.log(pair[0] + ', ' + pair[1]);
-      }
+      // for (var pair of form.entries()) {
+      //   console.log(pair[0] + ', ' + pair[1]);
+      // }
+      // console.log(form);
       dispatch(createStory(form));
     } catch (error) {
       dispatch(setLoading(false));

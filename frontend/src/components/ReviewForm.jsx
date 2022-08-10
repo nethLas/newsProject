@@ -39,7 +39,6 @@ function ReviewForm({ storyId }) {
     };
   }, [dispatch]);
   const onClick = function (e) {
-    console.log('click');
     if (story.author.id === user.id) {
       toast.error('cannot rate your own story');
       return;

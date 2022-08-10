@@ -84,7 +84,6 @@ userSchema.virtual('stories', {
 userSchema.pre('save', async function (next) {
   //only run if password is modified or user is newly created
   if (!this.isModified('password')) {
-    console.log('skipped');
     return next();
   }
   //hash with cost 12

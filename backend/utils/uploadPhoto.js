@@ -30,7 +30,6 @@ module.exports = (baseName = 'user') => {
     ACL: 'public-read',
     bucket: process.env.AWS_BUCKET_NAME,
     key: function (req, file, cb) {
-      console.log(file);
       cb(
         null,
         `${baseName}-${Date.now().toString()}-${Math.floor(

@@ -11,7 +11,6 @@ function SearchBar() {
   const onChange = (e) => setSearch((prev) => e.target.value);
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log('hi');
     dispatch(getSearchStories(search));
   };
   return (
