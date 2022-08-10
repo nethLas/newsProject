@@ -31,6 +31,14 @@ app.use(
     crossOriginEmbedderPolicy: false,
   })
 );
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      'img-src': ["'self'", 'https: data:'],
+    },
+  })
+);
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
