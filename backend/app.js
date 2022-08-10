@@ -37,6 +37,12 @@ app.use(
     directives: {
       'img-src': ["'self'", 'https: data: blob:'],
       'connect-src': ["'self'", 'https://api.geoapify.com/'],
+      'script-src': [
+        "'self'",
+        'https://unpkg.com/react/umd/react.production.min.js',
+        'https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js',
+        'https://unpkg.com/react-bootstrap@2.5.0-beta.1/dist/react-bootstrap.min.js',
+      ],
     },
   })
 );
