@@ -43,7 +43,6 @@ exports.updateStory = factory.updateOne(Story, allowefFields);
 exports.getDistances = catchAsync(async (req, res, next) => {
   const getLastWeekDate = () => {
     const now = new Date();
-
     return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14); //for the moment two weeks bcoz no t big db
   };
   const { latlng, unit } = req.params;

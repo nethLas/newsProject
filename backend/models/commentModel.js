@@ -7,7 +7,7 @@ const commentSchema = new mongoose.Schema(
       required: [true, 'Comment can not be empty'],
       max: [250, 'Comment cannot be longer than 250 characters'],
     },
-    createdAt: { type: Date, default: Date.now() },
+    createdAt: { type: Date, default: new Date().toISOString() },
     story: {
       type: mongoose.Schema.ObjectId,
       ref: 'Story',
