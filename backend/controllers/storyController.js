@@ -72,13 +72,13 @@ exports.getDistances = catchAsync(async (req, res, next) => {
         distanceMultiplier: multiplier,
       },
     },
-    {
-      $match: {
-        createdAt: {
-          $gte: getLastWeekDate(),
-        },
-      },
-    },
+    // {
+    //   $match: {
+    //     createdAt: {
+    //       $gte: getLastWeekDate(),
+    //     },
+    //   },
+    // },
     {
       $limit: 10,
     },
